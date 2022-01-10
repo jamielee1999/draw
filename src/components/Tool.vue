@@ -59,11 +59,11 @@
             <el-option label="抽1人" :value="1"></el-option>
             <el-option label="抽5人" :value="5"></el-option>
             <el-option label="一次抽取完" :value="0"></el-option>
-            <el-option label="自定義" :value="99"></el-option>
+            <el-option label="自設人數" :value="99"></el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="抽取人数" v-if="form.mode === 99">
+        <el-form-item label="抽取人數" v-if="form.mode === 99">
           <el-input
             v-model="form.qty"
             type="number"
