@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      setData(configField, this.form);
+      setData(configField, this.form); // 字串 config
       this.$store.commit('setConfig', this.form);
       this.$emit('update:visible', false);
 
@@ -125,7 +125,7 @@ export default {
       return `${fieldStr}${Date.now()}`;
     },
     addHandler() {
-      const field = this.randomField();
+      const field = this.randomField(); // 取得亂碼，做識別碼用.
       const data = {
         key: field,
         name: this.newLottery.name

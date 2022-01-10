@@ -11,13 +11,14 @@
       重置
     </el-button>
     <el-button size="mini" @click="showImport = true">
-      導入名單
+      匯入名單
     </el-button>
-    <!--
-    <el-button size="mini" @click="showImportphoto = true">
+    <el-button size="mini" @click="showAddPrizes = true">
+      匯入獎項
+    </el-button>
+    <!-- <el-button size="mini" @click="showImportphoto = true">
       導入照片
-    </el-button>
-    -->
+    </el-button> -->
     <el-dialog
       :append-to-body="true"
       :visible.sync="showSetwat"
@@ -91,15 +92,42 @@
         </el-form-item>
       </el-form>
     </el-dialog>
-
+    <!-- ====== 獎項 ====== -->
+    <el-dialog
+      :visible.sync="showAddPrizes"
+      :append-to-body="true"
+      width="400px"
+      class="import-dialog"
+    >
+      <div class="add-title" slot="title">增加獎項</div>
+      <el-upload
+        class="upload-csv"
+        ref="refPrizesFile"
+        action
+        :limit="1"
+        accept=".csv"
+        :auto-upload="false"
+        :on-change="onChangePrizes"
+      >
+        <el-button size="small" type="primary">點擊上傳</el-button>
+      </el-upload>
+      <div class="footer">
+        <el-button size="mini" type="primary" @click="transformPrizesList"
+          >確定</el-button
+        >
+        <el-button size="mini" @click="showAddPrizes = false">取消</el-button>
+      </div>
+    </el-dialog>
+    <!-- ====== 名單 ====== -->
     <el-dialog
       :append-to-body="true"
       :visible.sync="showImport"
       class="import-dialog"
       width="400px"
     >
+      <div class="add-title" slot="title">匯入名單</div>
       <el-upload
-        id="upload-csv"
+        class="upload-csv"
         ref="refFile"
         action
         :limit="1"
@@ -116,11 +144,12 @@
         <el-button size="mini" @click="showImport = false">取消</el-button>
       </div>
     </el-dialog>
-    <Importphoto
+    <!-- ====== 照片 ====== -->
+    <!-- <Importphoto
       :visible.sync="showImportphoto"
       @getPhoto="$emit('getPhoto')"
-    ></Importphoto>
-
+    ></Importphoto> -->
+    <!-- ====== 設定 ====== -->
     <el-dialog
       :visible.sync="showRemoveoptions"
       width="300px"
@@ -157,9 +186,10 @@ import {
   resultField,
   conversionCategoryName
 } from '@/helper/index';
-import Importphoto from './Importphoto';
+// import Importphoto from './Importphoto';
 import { database, DB_STORE_NAME } from '@/helper/db';
 import Papa from 'papaparse';
+import { randomNum } from '@/helper/algorithm';
 
 export default {
   props: {
@@ -201,12 +231,13 @@ export default {
       return options;
     }
   },
-  components: { Importphoto },
+  // components: { Importphoto },
   data() {
     return {
       showSetwat: false,
       showImport: false,
       showImportphoto: false,
+      showAddPrizes: false,
       showRemoveoptions: false,
       removeInfo: { type: 0 },
       form: {
@@ -215,7 +246,8 @@ export default {
         qty: 1,
         allin: false
       },
-      listData: []
+      listData: [],
+      prizesData: []
     };
   },
   watch: {
@@ -226,16 +258,28 @@ export default {
     }
   },
   methods: {
-    onChange(file, fileList) {
+    onChange(file) {
+      this.listData.length = 0;
       const cavData = this.listData;
       Papa.parse(file.raw, {
         complete: function(res) {
           cavData.push(...res.data);
         }
       });
-
-      fileList.length = 0;
-      fileList.push(file);
+    },
+    onChangePrizes(file) {
+      this.prizesData.length = 0;
+      const csvData = this.prizesData;
+      Papa.parse(file.raw, {
+        complete: function(res) {
+          res.data.forEach(data => {
+            csvData.push({
+              key: data[0],
+              name: data[1]
+            });
+          });
+        }
+      });
     },
     resetConfig() {
       const type = this.removeInfo.type;
@@ -349,6 +393,34 @@ export default {
         this.$refs.refFile.clearFiles();
         this.$emit('resetConfig');
       });
+    },
+    transformPrizesList() {
+      const updatePrizesData = this.prizesData.map(data => {
+        const field = this.randomField();
+        return {
+          key: field,
+          name: data.name
+        };
+      });
+
+      this.$store.commit('setNewLottery', updatePrizesData);
+      this.$message({
+        message: '儲存成功',
+        type: 'success'
+      });
+      this.showAddPrizes = false;
+      this.$nextTick(() => {
+        this.$refs.refPrizesFile.clearFiles();
+        this.$emit('resetConfig');
+      });
+    },
+    randomField() {
+      const str = 'abcdefghijklmnopqrstuvwxyz';
+      let fieldStr = '';
+      for (let index = 0; index < 10; index++) {
+        fieldStr += str.split('')[randomNum(1, 27) - 1];
+      }
+      return `${fieldStr}${Date.now()}`;
     }
   }
 };
@@ -394,7 +466,7 @@ export default {
     margin-bottom: 10px;
   }
 }
-#upload-csv {
+.upload-csv {
   border: 1px solid #dcdfe6;
   color: #606266;
   border-radius: 4px;

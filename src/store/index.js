@@ -61,7 +61,12 @@ export default new Vuex.Store({
       if (state.newLottery.find(item => item.name === newLottery.name)) {
         return;
       }
-      state.newLottery.push(newLottery);
+      if (Array.isArray(newLottery)) {
+        state.newLottery.length = 0;
+        state.newLottery.push(...newLottery);
+      } else {
+        state.newLottery.push(newLottery);
+      }
       setData(newLotteryField, state.newLottery);
     },
     setList(state, list) {
