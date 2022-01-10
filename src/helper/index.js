@@ -48,3 +48,14 @@ export function conversionCategoryName(key) {
   }
   return name;
 }
+export const getNumberOfPeople = state => {
+  return state && state.list.length > 0 ? state.list.length : 99;
+};
+export const updateNumberOfPeople = state => {
+  if (state && state.list.length > 0) {
+    state.config.number = state.list.length;
+    return state.list.length;
+  } else {
+    return 99;
+  }
+};

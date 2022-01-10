@@ -4,7 +4,9 @@ import {
   setData,
   resultField,
   newLotteryField,
-  listField
+  listField,
+  getNumberOfPeople,
+  updateNumberOfPeople
 } from '@/helper/index';
 
 Vue.use(Vuex);
@@ -13,10 +15,9 @@ export default new Vuex.Store({
   state: {
     config: {
       name: '果實夥伴尾牙抽獎',
-      number: 67,
+      number: getNumberOfPeople()
     },
-    result: {
-    },
+    result: {},
     newLottery: [],
     list: [],
     photos: []
@@ -25,7 +26,7 @@ export default new Vuex.Store({
     setClearConfig(state) {
       state.config = {
         name: '果實夥伴尾牙抽獎',
-        number: 67,
+        number: getNumberOfPeople(state)
       };
       state.newLottery = [];
     },
@@ -36,16 +37,14 @@ export default new Vuex.Store({
       state.photos = [];
     },
     setClearResult(state) {
-      state.result = {
-      };
+      state.result = {};
     },
     setClearStore(state) {
       state.config = {
         name: '果實夥伴尾牙抽獎',
-        number: 67,
+        number: getNumberOfPeople()
       };
-      state.result = {
-      };
+      state.result = {};
       state.newLottery = [];
       state.list = [];
       state.photos = [];
@@ -88,7 +87,7 @@ export default new Vuex.Store({
         }
       });
       state.list = arr;
-
+      updateNumberOfPeople(state);
       setData(listField, arr);
     },
     setPhotos(state, photos) {
