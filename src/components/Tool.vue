@@ -26,7 +26,11 @@
     >
       <el-form ref="form" :model="form" label-width="80px" size="mini">
         <el-form-item label="抽取獎項">
-          <el-select v-model="form.category" placeholder="請選取本次抽取的獎項">
+          <el-select
+            v-model="form.category"
+            placeholder="請選取本次抽取的獎項"
+            no-data-text="尚未匯入獎項"
+          >
             <el-option
               :label="item.label"
               :value="item.value"

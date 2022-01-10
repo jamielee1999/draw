@@ -31,14 +31,6 @@
             :step="1"
           ></el-input>
         </el-form-item>
-        <el-form-item label="一等獎">
-          <el-input
-            type="number"
-            v-model="form.firstPrize"
-            :min="0"
-            :step="1"
-          ></el-input>
-        </el-form-item>
         <el-form-item
           :label="newitem.name"
           v-for="newitem in storeNewLottery"

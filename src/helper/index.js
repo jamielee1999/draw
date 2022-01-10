@@ -41,13 +41,6 @@ export const newLotteryField = 'newLottery'; // 新增獎項
 export const listField = 'list'; // 名單
 export function conversionCategoryName(key) {
   let name = '';
-  switch (key) {
-    case 'firstPrize':
-      name = '一等獎';
-      break;
-    default:
-      break;
-  }
   const newLottery = getData(newLotteryField) || [];
   const findres = newLottery.find(item => item.key === key);
   if (findres) {
