@@ -160,7 +160,7 @@
         <el-form-item label="重置選項">
           <el-radio-group v-model="removeInfo.type">
             <el-radio border :label="0">重置全部數據</el-radio>
-            <el-radio border :label="1">重置抽獎配置</el-radio>
+            <el-radio border :label="1">重置獎項</el-radio>
             <el-radio border :label="2">重置名單</el-radio>
             <!--
             <el-radio border :label="3">重置照片</el-radio>
@@ -203,12 +203,12 @@ export default {
       }
     },
     remain() {
-      return (
-        this.config[this.form.category] -
-        (this.result[this.form.category]
-          ? this.result[this.form.category].length
-          : 0)
-      );
+      return this.config[this.form.category]
+        ? this.config[this.form.category] -
+            (this.result[this.form.category]
+              ? this.result[this.form.category].length
+              : 0)
+        : '';
     },
     result() {
       return this.$store.state.result;
@@ -296,8 +296,10 @@ export default {
               database.clear(DB_STORE_NAME);
               break;
             case 1:
+              this.form.category = '';
               removeData(configField);
               this.$store.commit('setClearConfig');
+              this.$store.commit('setClearResult');
               break;
             case 2:
               removeData(listField);
