@@ -90,6 +90,17 @@ export default {
     },
     storeNewLottery() {
       return this.$store.state.newLottery;
+    },
+    quantityVerification() {
+      let result = 0;
+      Object.keys(this.form)
+        .filter(key => {
+          return key !== 'name' && key !== 'number';
+        })
+        .forEach(key => {
+          result = result + this.form[key];
+        });
+      return this.form.number >= result;
     }
   },
   data() {
@@ -100,19 +111,27 @@ export default {
   },
   methods: {
     onSubmit() {
-      setData(configField, this.form); // 字串 config
-      this.$store.commit('setConfig', this.form);
-      this.$emit('update:visible', false);
+      if (this.quantityVerification) {
+        setData(configField, this.form); // 字串 config
+        this.$store.commit('setConfig', this.form);
+        this.$emit('update:visible', false);
 
-      this.$message({
-        message: '儲存成功',
-        type: 'success'
-      });
+        this.$message({
+          message: '儲存成功',
+          type: 'success'
+        });
 
-      this.$nextTick(() => {
-        this.$emit('resetconfig');
-      });
+        this.$nextTick(() => {
+          this.$emit('resetconfig');
+        });
+      } else {
+        this.$message({
+          message: '獎項頒發數量數超出抽獎人數，請重新確認！',
+          type: 'warning'
+        });
+      }
     },
+
     addLottery() {
       this.showAddLottery = true;
     },
