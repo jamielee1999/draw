@@ -68,7 +68,6 @@ export default {
 <style lang="scss">
 .c-Publicity {
   height: 100%;
-  width: 1000px;
   background-color: rgba(255, 255, 255, 0.1);
   margin: 0 auto;
   position: relative;
