@@ -182,13 +182,23 @@ export default {
       }
       return allresult;
     },
+    resultsKeyData() {
+      return Object.keys(this.$store.state.result);
+    },
     datas() {
       const { number } = this.config;
+      // const totalPeople = this.resultsKeyData.reduce((total, key) => {
+      //   return total + this.config[key];
+      // }, 0);
       const nums = number >= 1500 ? 500 : this.config.number;
       const configNum = number > 1500 ? Math.floor(number / 3) : number;
-      const randomShowNums = luckydrawHandler(configNum, [], nums);
-      const randomShowDatas = randomShowNums.map(item => {
-        const listData = this.list.find(d => d.key === item);
+      const remainingData = this.filterRemainingData(
+        luckydrawHandler(configNum, [], nums)
+      );
+      const randomShowDatas = remainingData.map(item => {
+        const listData = this.list.find(data => {
+          return data.key === item;
+        });
         const photo = this.photos.find(d => d.id === item);
         return {
           key: item * (number > 1500 ? 3 : 1),
@@ -196,6 +206,7 @@ export default {
           photo: photo ? photo.value : ''
         };
       });
+
       return randomShowDatas;
     },
     categoryName() {
@@ -266,6 +277,15 @@ export default {
     window.removeEventListener('resize', this.reportWindowSize);
   },
   methods: {
+    filterRemainingData(numbersData) {
+      return numbersData.filter(
+        num =>
+          !this.resultsKeyData
+            .map(key => this.result[key])
+            .flat()
+            .includes(num)
+      );
+    },
     reportWindowSize() {
       const AppCanvas = this.$el.querySelector('#rootcanvas');
       if (AppCanvas.parentElement) {
