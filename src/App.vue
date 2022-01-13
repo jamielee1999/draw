@@ -227,12 +227,13 @@ export default {
     }
 
     const newLottery = getData(newLotteryField);
+    // loading page 如果尚未設定各項獎品人數，則會補上 1.
     if (newLottery) {
       const config = this.config;
       newLottery.forEach(item => {
         this.$store.commit('setNewLottery', item);
         if (!config[item.key]) {
-          this.$set(config, item.key, 0);
+          this.$set(config, item.key, 1);
         }
       });
       this.$store.commit('setConfig', config);
