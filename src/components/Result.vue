@@ -7,12 +7,22 @@
     :append-to-body="true"
   >
     <div class="dialog-title" slot="title">
-      <span :style="{ fontSize: '18px' }">
-        抽獎結果
-      </span>
-      <span :style="{ fontSize: '14px', color: '#999', marginLeft: '10px' }">
-        (點擊號碼可以刪除)
-      </span>
+      <div>
+        <span :style="{ fontSize: '18px' }">
+          抽獎結果
+        </span>
+        <span :style="{ fontSize: '14px', color: '#999', marginLeft: '10px' }">
+          (點擊號碼可以刪除)
+        </span>
+      </div>
+      <div>
+        <el-button
+          type="primary"
+          class="blue-background-button"
+          @click="exportResultsData"
+          >匯出</el-button
+        >
+      </div>
     </div>
     <div
       v-for="(item, index) in resultList"
@@ -45,10 +55,17 @@
 </template>
 <script>
 import { conversionCategoryName, getDomData } from '@/helper/index';
+import { useExcelJS } from '@/utils/ExportExcel';
 export default {
   name: 'c-Result',
   props: {
     visible: Boolean
+  },
+  data() {
+    const { exportXlsx } = useExcelJS('得獎名單');
+    return {
+      exportXlsx
+    };
   },
   computed: {
     result: {
@@ -58,6 +75,12 @@ export default {
       set(val) {
         this.$store.commit('setResult', val);
       }
+    },
+    lottery() {
+      return this.$store.state.newLottery;
+    },
+    personsList() {
+      return this.$store.state.list;
     },
     resultList() {
       const list = [];
@@ -111,11 +134,43 @@ export default {
             message: '已取消'
           });
         });
+    },
+    exportResultsData() {
+      const resultsData = Object.keys(this.result).map(key => {
+        const winningPartner = this.result[key].map(
+          id => `${id} ${this.personsList.find(data => data.key === id).name}`
+        );
+        return {
+          name: this.lottery.find(data => data.key === key).name,
+          winning_partner: winningPartner
+        };
+      });
+      this.exportXlsx(
+        resultsData,
+        `${new Date().getFullYear()} 果實夥伴尾牙得獎名單`
+      );
     }
   }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
+.dialog-title {
+  display: flex;
+  justify-content: space-between;
+  div {
+    margin: auto 0;
+  }
+  button {
+    margin-right: 25px;
+  }
+}
+.blue-background-button {
+  background: #1890ff;
+  border: 1px solid #1890ff;
+  border-radius: 2px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.043);
+}
 .c-Result {
   .el-dialog__body {
     max-height: 500px;
