@@ -25,10 +25,10 @@
         </el-form-item>
         <el-form-item label="抽獎總人數">
           <el-input
-            type="number"
             v-model="form.number"
             :min="1"
             :step="1"
+            disabled
           ></el-input>
         </el-form-item>
         <el-form-item
