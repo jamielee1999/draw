@@ -5,6 +5,7 @@
     width="390px"
     @close="$emit('update:visible', false)"
     class="c-LotteryConfig"
+    :show-close="false"
   >
     <div class="c-LotteryConfigtitle" slot="title">
       <span :style="{ fontSize: '16px', marginRight: '20px' }">
@@ -32,20 +33,13 @@
           ></el-input>
         </el-form-item>
         <el-form-item
-          :label="newitem.name"
-          v-for="newitem in storeNewLottery"
-          :key="newitem.key"
+          :label="lottery.name"
+          v-for="lottery in storeNewLottery"
+          :key="lottery.key"
         >
           <el-input
-            type="number"
-            :min="0"
-            :step="1"
-            v-model="form[newitem.key]"
-            @change="
-              val => {
-                form[newitem.key] = Number(val);
-              }
-            "
+            v-model="form[lottery.key]"
+            @input="UpdateNumberOfAwards($event, lottery)"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -92,15 +86,16 @@ export default {
       return this.$store.state.newLottery;
     },
     quantityVerification() {
-      let result = 0;
-      Object.keys(this.form)
+      return this.form.number >= this.totalQueued;
+    },
+    totalQueued() {
+      return Object.keys(this.form)
         .filter(key => {
           return key !== 'name' && key !== 'number';
         })
-        .forEach(key => {
-          result = result + this.form[key];
-        });
-      return this.form.number >= result;
+        .reduce((total, key) => {
+          return total + Number(this.$store.state.config[key]);
+        }, 0);
     }
   },
   data() {
@@ -152,6 +147,11 @@ export default {
       this.$store.commit('setNewLottery', data);
 
       this.showAddLottery = false;
+    },
+    UpdateNumberOfAwards(value, item) {
+      console.log(this.totalQueued);
+      const result = Number(value) ? Number(value) : 0;
+      this.form[item.key] = result;
     }
   }
 };
