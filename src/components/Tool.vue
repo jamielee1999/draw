@@ -98,6 +98,7 @@
       :append-to-body="true"
       width="400px"
       class="import-dialog"
+      :show-close="false"
     >
       <div class="add-title" slot="title">增加獎項</div>
       <el-upload
@@ -124,6 +125,7 @@
       :visible.sync="showImport"
       class="import-dialog"
       width="400px"
+      :show-close="false"
     >
       <div class="add-title" slot="title">匯入名單</div>
       <el-upload
@@ -152,26 +154,32 @@
     <!-- ====== 設定 ====== -->
     <el-dialog
       :visible.sync="showRemoveoptions"
-      width="300px"
-      class="c-removeoptions"
+      width="400px"
+      class="removeoptions"
       :append-to-body="true"
+      :show-close="false"
     >
+      <div class="add-title" slot="title">重置選項</div>
       <el-form ref="form" :model="removeInfo" label-width="80px" size="mini">
-        <el-form-item label="重置選項">
+        <el-form-item>
           <el-radio-group v-model="removeInfo.type">
-            <el-radio border :label="0">重置全部數據</el-radio>
+            <el-radio border :label="0">重置全部</el-radio>
             <el-radio border :label="1">重置獎項</el-radio>
             <el-radio border :label="2">重置名單</el-radio>
             <!--
             <el-radio border :label="3">重置照片</el-radio>
             -->
-            <el-radio border :label="4">重置抽獎結果</el-radio>
+            <el-radio border :label="4">重置結果</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="resetConfig">確定重置</el-button>
-          <el-button @click="showRemoveoptions = false">取消</el-button>
-        </el-form-item>
+        <div class="footer">
+          <el-button size="mini" type="primary" @click="resetConfig"
+            >確定</el-button
+          >
+          <el-button size="mini" @click="showRemoveoptions = false"
+            >取消</el-button
+          >
+        </div>
       </el-form>
     </el-dialog>
   </div>
@@ -190,6 +198,7 @@ import {
 import { database, DB_STORE_NAME } from '@/helper/db';
 import Papa from 'papaparse';
 import { randomNum } from '@/helper/algorithm';
+import _ from 'lodash';
 
 export default {
   props: {
@@ -298,20 +307,27 @@ export default {
             case 1:
               this.form.category = '';
               removeData(configField);
-              this.$store.commit('setClearConfig');
-              this.$store.commit('setClearResult');
+              this.$store.commit('clearConfig');
               break;
             case 2:
-              removeData(listField);
-              this.$store.commit('setClearList');
-              break;
+              if (_.isEmpty(this.result)) {
+                removeData(listField);
+                this.$store.commit('clearList');
+                break;
+              } else {
+                this.$message({
+                  type: 'warning',
+                  message: '已進行過抽獎，無法單獨重置名單!'
+                });
+                return;
+              }
             case 3:
               database.clear(DB_STORE_NAME);
-              this.$store.commit('setClearPhotos');
+              this.$store.commit('clearPhotos');
               break;
             case 4:
               removeData(resultField);
-              this.$store.commit('setClearResult');
+              this.$store.commit('clearResult');
               break;
             default:
               break;
@@ -387,7 +403,7 @@ export default {
       this.$store.commit('setList', list);
 
       this.$message({
-        message: '儲存成功',
+        message: '匯入名單成功',
         type: 'success'
       });
       this.showImport = false;
@@ -407,7 +423,7 @@ export default {
 
       this.$store.commit('setNewLottery', updatePrizesData);
       this.$message({
-        message: '儲存成功',
+        message: '匯入獎項成功',
         type: 'success'
       });
       this.showAddPrizes = false;
@@ -427,7 +443,7 @@ export default {
   }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 #tool {
   position: fixed;
   width: 60px;
@@ -457,9 +473,16 @@ export default {
     text-align: center;
   }
 }
-.c-removeoptions {
-  .el-dialog {
-    height: 290px;
+.removeoptions {
+  /deep/.el-form-item__content {
+    margin-left: 0px !important;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .el-radio {
+    margin-right: 0px;
+    width: 182px;
   }
   .el-radio.is-bordered + .el-radio.is-bordered {
     margin-left: 0px;
@@ -467,7 +490,13 @@ export default {
   .el-radio.is-bordered {
     margin-bottom: 10px;
   }
+  .footer {
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+  }
 }
+
 .upload-csv {
   border: 1px solid #dcdfe6;
   color: #606266;

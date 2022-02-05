@@ -10,11 +10,11 @@ import {
 } from '@/helper/index';
 
 Vue.use(Vuex);
-
+const lotteryName = '尾牙抽獎程式';
 export default new Vuex.Store({
   state: {
     config: {
-      name: '果實夥伴尾牙抽獎',
+      name: lotteryName,
       number: getNumberOfPeople()
     },
     result: {},
@@ -23,25 +23,26 @@ export default new Vuex.Store({
     photos: []
   },
   mutations: {
-    setClearConfig(state) {
+    clearConfig(state) {
       state.config = {
-        name: '果實夥伴尾牙抽獎',
+        name: lotteryName,
         number: getNumberOfPeople(state)
       };
       state.newLottery = [];
+      state.result = {};
     },
-    setClearList(state) {
+    clearList(state) {
       state.list = [];
     },
-    setClearPhotos(state) {
+    clearPhotos(state) {
       state.photos = [];
     },
-    setClearResult(state) {
+    clearResult(state) {
       state.result = {};
     },
     setClearStore(state) {
       state.config = {
-        name: '果實夥伴尾牙抽獎',
+        name: lotteryName,
         number: getNumberOfPeople()
       };
       state.result = {};

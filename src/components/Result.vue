@@ -149,10 +149,7 @@ export default {
           winning_partner: winningPartner
         };
       });
-      this.exportXlsx(
-        resultsData,
-        `${new Date().getFullYear()} 果實夥伴尾牙得獎名單`
-      );
+      this.exportXlsx(resultsData, `${new Date().getFullYear()} 得獎名單`);
     }
   }
 };
