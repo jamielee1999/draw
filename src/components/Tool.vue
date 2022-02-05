@@ -222,6 +222,12 @@ export default {
     result() {
       return this.$store.state.result;
     },
+    list() {
+      return this.$store.state.list;
+    },
+    lottery() {
+      return this.$store.state.newLottery;
+    },
     categorys() {
       const options = [];
       for (const key in this.config) {
@@ -379,6 +385,15 @@ export default {
       );
     },
     startHandler() {
+      if (this.list.length === 0 || this.lottery.length === 0) {
+        const messageText =
+          this.list.length === 0 ? '請先匯入名單!' : '請先匯入獎項!';
+        this.$message({
+          message: messageText,
+          type: 'warning'
+        });
+        return;
+      }
       this.$emit('toggle');
       if (!this.running) {
         this.showSetwat = true;
