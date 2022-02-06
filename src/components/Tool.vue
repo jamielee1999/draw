@@ -22,10 +22,17 @@
     <el-dialog
       :append-to-body="true"
       :visible.sync="showSetwat"
-      class="setwat-dialog"
+      class="default-dialog-config setwat-dialog"
       width="400px"
+      :show-close="false"
     >
-      <el-form ref="form" :model="form" label-width="80px" size="mini">
+      <el-form
+        ref="form"
+        :model="form"
+        label-width="80px"
+        size="mini"
+        class="option-config"
+      >
         <el-form-item label="抽取獎項">
           <el-select
             v-model="form.category"
@@ -56,10 +63,9 @@
 
         <el-form-item label="抽取方式">
           <el-select v-model="form.mode" placeholder="請選取本次抽取方式">
-            <el-option label="抽1人" :value="1"></el-option>
-            <el-option label="抽5人" :value="5"></el-option>
-            <el-option label="一次抽取完" :value="0"></el-option>
-            <el-option label="自設人數" :value="99"></el-option>
+            <el-option label="抽 1 人" :value="1"></el-option>
+            <el-option label="一次抽完" :value="0"></el-option>
+            <el-option label="自訂人數" :value="99"></el-option>
           </el-select>
         </el-form-item>
 
@@ -76,20 +82,17 @@
 
         <el-form-item label="全員參與">
           <el-switch v-model="form.allin"></el-switch>
-          <span :style="{ fontSize: '12px' }">
+          <!-- <span :style="{ fontSize: '12px' }">
             (開啟後將在全體成員[無論有無中獎]中抽獎)
-          </span>
+          </span> -->
         </el-form-item>
 
-        <el-form-item>
-          <el-button
-            type="primary"
-            @click="onSubmit"
-            style="background-color: #f699cd;border-color: #f699cd;"
+        <div class="footer">
+          <el-button size="mini" type="primary" @click="onSubmit"
             >立即抽獎</el-button
           >
-          <el-button @click="showSetwat = false">取消</el-button>
-        </el-form-item>
+          <el-button size="mini" @click="showSetwat = false">取消</el-button>
+        </div>
       </el-form>
     </el-dialog>
     <!-- ====== 獎項 ====== -->
@@ -97,7 +100,7 @@
       :visible.sync="showAddPrizes"
       :append-to-body="true"
       width="400px"
-      class="import-dialog"
+      class="default-dialog-config"
       :show-close="false"
     >
       <div class="add-title" slot="title">增加獎項</div>
@@ -123,7 +126,7 @@
     <el-dialog
       :append-to-body="true"
       :visible.sync="showImport"
-      class="import-dialog"
+      class="default-dialog-config"
       width="400px"
       :show-close="false"
     >
@@ -155,7 +158,7 @@
     <el-dialog
       :visible.sync="showRemoveoptions"
       width="400px"
-      class="removeoptions"
+      class="default-dialog-config removeoptions"
       :append-to-body="true"
       :show-close="false"
     >
@@ -251,7 +254,7 @@ export default {
     return {
       showSetwat: false,
       showImport: false,
-      showImportphoto: false,
+      // showImportphoto: false,
       showAddPrizes: false,
       showRemoveoptions: false,
       removeInfo: { type: 0 },
@@ -373,7 +376,7 @@ export default {
           return this.$message.error('本次抽獎人數已超過本獎項的剩餘人數');
         }
       }
-      if (this.form.mode === 1 || this.form.mode === 5) {
+      if (this.form.mode === 1) {
         if (this.form.mode > this.remain) {
           return this.$message.error('本次收講人數已抽過本獎項的剩餘人數');
         }
@@ -481,11 +484,21 @@ export default {
     font-weight: bold;
   }
 }
-.import-dialog {
+.option-config {
+  .el-form-item__content {
+    div {
+      width: 180px;
+    }
+  }
+}
+.default-dialog-config {
   .footer {
-    height: 50px;
-    line-height: 50px;
+    height: 40px;
+    line-height: 40px;
     text-align: center;
+    button {
+      width: 80px;
+    }
   }
 }
 .removeoptions {
@@ -505,11 +518,6 @@ export default {
   .el-radio.is-bordered {
     margin-bottom: 10px;
   }
-  .footer {
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-  }
 }
 
 .upload-csv {
@@ -519,7 +527,7 @@ export default {
   padding: 5px;
   display: flex;
 }
-.el-upload-list {
+/deep/ .el-upload-list {
   margin: auto 0 !important;
   li {
     margin: 0;
