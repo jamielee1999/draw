@@ -36,19 +36,25 @@
         <el-form-item label="抽取獎項">
           <el-select
             v-model="form.category"
-            placeholder="請選取本次抽取的獎項"
-            no-data-text="尚未匯入獎項"
+            placeholder="請選擇抽取的獎項"
+            no-data-text="尚未配置獎項數量"
           >
             <el-option
               :label="item.label"
               :value="item.value"
               v-for="(item, index) in categorys"
               :key="index"
-            ></el-option>
+            >
+              <span style="float: left">{{ item.label }}</span>
+              <span style="float: right; color: #8492a6; font-size: 12px">{{
+                `${remainingAmount(item.value)}/${config[item.value]}`
+              }}</span>
+            </el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label=" " v-if="form.category">
+        <!-- 剩餘獎項數文字顯示 -->
+        <!-- <el-form-item label=" " v-if="form.category">
           <span>
             共&nbsp;
             <span class="colorred">{{ config[form.category] }}</span>
@@ -59,10 +65,10 @@
             <span class="colorred">{{ remain }}</span>
             &nbsp;名
           </span>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item label="抽取方式">
-          <el-select v-model="form.mode" placeholder="請選取本次抽取方式">
+          <el-select v-model="form.mode" placeholder="請選擇抽取方式">
             <el-option label="抽 1 人" :value="1"></el-option>
             <el-option label="一次抽完" :value="0"></el-option>
             <el-option label="自訂人數" :value="99"></el-option>
@@ -79,13 +85,14 @@
             :step="1"
           ></el-input>
         </el-form-item>
-
-        <el-form-item label="全員參與">
-          <el-switch v-model="form.allin"></el-switch>
-          <!-- <span :style="{ fontSize: '12px' }">
-            (開啟後將在全體成員[無論有無中獎]中抽獎)
-          </span> -->
-        </el-form-item>
+        <div>
+          <el-form-item label="全員參與">
+            <el-switch v-model="form.allin"></el-switch>
+          </el-form-item>
+          <span class="warning-text">
+            * 開啟後將在全體成員 (無論有無中獎) 中抽獎
+          </span>
+        </div>
 
         <div class="footer">
           <el-button size="mini" type="primary" @click="onSubmit"
@@ -276,6 +283,10 @@ export default {
     }
   },
   methods: {
+    remainingAmount(key) {
+      const numberOfResults = this.result[key] ? this.result[key].length : 0;
+      return this.config[key] ? this.config[key] - numberOfResults : 0;
+    },
     onChange(file) {
       this.listData.length = 0;
       const cavData = this.listData;
@@ -478,16 +489,19 @@ export default {
     margin-left: 0px;
   }
 }
-.setwat-dialog {
-  .colorred {
-    color: red;
-    font-weight: bold;
-  }
-}
+// .setwat-dialog {
+//   .colorred {
+//     color: red;
+//     font-weight: bold;
+//   }
+// }
 .option-config {
+  /deep/ .el-form-item__label {
+    text-align: center;
+  }
   .el-form-item__content {
     div {
-      width: 180px;
+      width: 100%;
     }
   }
 }
@@ -533,5 +547,12 @@ export default {
     margin: 0;
     margin-top: 0px !important;
   }
+}
+.warning-text {
+  position: relative;
+  left: 10px;
+  top: -6px;
+  font-size: 12px;
+  color: #ff2f2f;
 }
 </style>
