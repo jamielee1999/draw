@@ -20,6 +20,7 @@
         <el-button
           type="primary"
           class="blue-background-button"
+          :disabled="!result || Object.keys(result).length === 0"
           @click="exportResultsData"
           >匯出</el-button
         >
@@ -114,18 +115,23 @@ export default {
       if (!Index) {
         return;
       }
-      this.$confirm('此操作將移除該中獎號碼，確認刪除？', '警告', {
+      this.$confirm('此操作將移除該中獎人員，確認刪除？', '警告', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(() => {
           if (Index) {
-            const result = this.result;
-            result[row.label] = this.result[row.label].filter(
+            // 移除中獎人員.
+            this.result[row.label] = this.result[row.label].filter(
               item => item !== Number(Index)
             );
-            this.result = result;
+            // 移除後若該獎項已無任何中獎人員，則將屬性移除，避免結果還顯示該獎項.
+            if (this.result[row.label].length === 0) {
+              delete this.result[row.label];
+            }
+            // 同步將 localStorage 資訊更新.
+            this.$store.commit('setResult', this.result);
             this.$message({
               type: 'success',
               message: '删除成功!'
