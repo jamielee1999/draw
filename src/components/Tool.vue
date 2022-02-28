@@ -216,10 +216,8 @@ export default {
     closeRes: Function
   },
   computed: {
-    config: {
-      get() {
-        return this.$store.state.config;
-      }
+    config() {
+      return this.$store.state.config;
     },
     remain() {
       return this.config[this.form.category]
@@ -325,10 +323,18 @@ export default {
               database.clear(DB_STORE_NAME);
               break;
             case 1:
-              this.form.category = '';
-              removeData(configField);
-              this.$store.commit('clearConfig');
-              break;
+              if (_.isEmpty(this.result)) {
+                this.form.category = '';
+                removeData(configField);
+                this.$store.commit('clearConfig');
+                break;
+              } else {
+                this.$message({
+                  type: 'warning',
+                  message: '已進行過抽獎，請先重置結果後再重置獎項!'
+                });
+                return;
+              }
             case 2:
               if (_.isEmpty(this.result)) {
                 removeData(listField);
@@ -337,7 +343,7 @@ export default {
               } else {
                 this.$message({
                   type: 'warning',
-                  message: '已進行過抽獎，無法單獨重置名單!'
+                  message: '已進行過抽獎，請先重置結果後再重置名單!'
                 });
                 return;
               }
@@ -449,8 +455,18 @@ export default {
           name: data.name
         };
       });
-
       this.$store.commit('setNewLottery', updatePrizesData);
+
+      if (updatePrizesData.length > 0) {
+        const presetQuantity = 1;
+        updatePrizesData.forEach(item => {
+          if (item.key) {
+            this.$set(this.config, item.key, presetQuantity);
+          }
+        });
+        this.$store.commit('setConfig', this.config);
+      }
+
       this.$message({
         message: '匯入獎項成功',
         type: 'success'

@@ -5,6 +5,7 @@ import {
   resultField,
   newLotteryField,
   listField,
+  configField,
   getNumberOfPeople,
   updateNumberOfPeople
 } from '@/helper/index';
@@ -52,6 +53,7 @@ export default new Vuex.Store({
     },
     setConfig(state, config) {
       state.config = config;
+      setData(configField, config);
     },
     setResult(state, result = {}) {
       state.result = result;
