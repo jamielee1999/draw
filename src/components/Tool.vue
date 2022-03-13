@@ -138,7 +138,16 @@
       :show-close="false"
     >
       <div class="add-title" slot="title">匯入名單</div>
+      <el-radio-group class="input-option" v-model="listRadio">
+        <el-radio
+          v-for="option in importListOptions"
+          :label="option.key"
+          :key="option.key"
+          >{{ option.name }}</el-radio
+        >
+      </el-radio-group>
       <el-upload
+        v-if="listRadio === 'csv'"
         class="upload-csv"
         ref="refFile"
         action
@@ -149,6 +158,7 @@
       >
         <el-button size="small" type="primary">點擊上傳</el-button>
       </el-upload>
+      <div></div>
       <div class="footer">
         <el-button size="mini" type="primary" @click="transformList"
           >確定</el-button
@@ -256,7 +266,19 @@ export default {
   },
   // components: { Importphoto },
   data() {
+    const importListOptions = [
+      {
+        key: 'csv',
+        name: '匯入CSV'
+      },
+      {
+        key: 'input',
+        name: '手動輸入(單筆)'
+      }
+    ];
     return {
+      importListOptions,
+      listRadio: 'csv',
       showSetwat: false,
       showImport: false,
       // showImportphoto: false,
@@ -421,18 +443,28 @@ export default {
     },
     transformList() {
       if (this.listData.length === 0) {
-        this.$message.error('沒有數據');
+        this.$message.error('請匯入資料！');
+        return;
       }
-      const list = [];
+      const list = this.list.length > 0 ? this.list : [];
       if (this.listData.length > 0) {
-        this.listData.forEach(item => {
-          const key = Number(item[0].trim());
-          const name = item[1].trim();
-          list.push({
-            key,
-            name
+        // 先濾掉 csv 內空的或資料缺少的項目，在將處理後的內容設定到 store list.
+        // ----------------
+        // TODO: 資料格式驗證
+        // ----------------=
+        this.listData
+          .filter(data => data[0] !== '')
+          .forEach((item, index) => {
+            console.log(index);
+            const key = list.length + 1;
+            const name = item[0].trim();
+            const nameCH = item[1] ? item[1].trim() : '-';
+            list.push({
+              key,
+              name,
+              nameCH
+            });
           });
-        });
       }
       // TODO: setup list here
       this.$store.commit('setList', list);
@@ -570,5 +602,8 @@ export default {
   top: -6px;
   font-size: 12px;
   color: #ff2f2f;
+}
+.input-option {
+  margin-bottom: 10px;
 }
 </style>
