@@ -158,7 +158,25 @@
       >
         <el-button size="small" type="primary">點擊上傳</el-button>
       </el-upload>
-      <div></div>
+      <div v-if="listRadio === 'text-input'" class="upload-input">
+        <div>
+          <span>英文名稱</span>
+          <el-input
+            v-model="participantsFormData.en_name"
+            size="small"
+            placeholder="請輸入英文名稱"
+          ></el-input>
+        </div>
+        <div>
+          <span>中文名稱</span>
+          <el-input
+            v-model="participantsFormData.zh_mane"
+            size="small"
+            placeholder="請輸入中文名稱"
+          ></el-input>
+        </div>
+      </div>
+
       <div class="footer">
         <el-button size="mini" type="primary" @click="transformList"
           >確定</el-button
@@ -272,10 +290,14 @@ export default {
         name: '匯入CSV'
       },
       {
-        key: 'input',
+        key: 'text-input',
         name: '手動輸入(單筆)'
       }
     ];
+    const defaultParticipantsData = {
+      en_name: '',
+      zh_mane: ''
+    };
     return {
       importListOptions,
       listRadio: 'csv',
@@ -292,7 +314,9 @@ export default {
         allin: false
       },
       listData: [],
-      prizesData: []
+      prizesData: [],
+      defaultParticipantsData,
+      participantsFormData: { ...defaultParticipantsData }
     };
   },
   watch: {
@@ -442,40 +466,62 @@ export default {
       }
     },
     transformList() {
-      if (this.listData.length === 0) {
-        this.$message.error('請匯入資料！');
-        return;
-      }
       const list = this.list.length > 0 ? this.list : [];
-      if (this.listData.length > 0) {
-        // 先濾掉 csv 內空的或資料缺少的項目，在將處理後的內容設定到 store list.
-        // ----------------
-        // TODO: 資料格式驗證
-        // ----------------=
-        this.listData
-          .filter(data => data[0] !== '')
-          .forEach((item, index) => {
-            console.log(index);
-            const key = list.length + 1;
-            const name = item[0].trim();
-            const nameCH = item[1] ? item[1].trim() : '-';
-            list.push({
-              key,
-              name,
-              nameCH
+      if (this.listRadio === 'csv') {
+        if (this.listData.length === 0) {
+          this.$message.error('請匯入資料！');
+          return;
+        }
+
+        if (this.listData.length > 0) {
+          // 先濾掉 csv 內空的或資料缺少的項目，在將處理後的內容設定到 store list.
+          // ----------------
+          // TODO: 資料格式驗證
+          // ----------------=
+          this.listData
+            .filter(data => data[0] !== '')
+            .forEach((item, index) => {
+              console.log(index);
+              const key = list.length + 1;
+              const name = item[0].trim();
+              const nameCH = item[1] ? item[1].trim() : '-';
+              list.push({
+                key,
+                name,
+                nameCH
+              });
             });
-          });
+        }
+      } else {
+        const hasParticipantsData = Object.keys(
+          this.participantsFormData
+        ).every(keys => this.participantsFormData[keys]);
+        if (!hasParticipantsData) {
+          this.$message.error('資料輸入不完整，請重新確認輸入的資料！');
+          return;
+        }
+        list.push({
+          key: this.list.length + 1,
+          name: this.participantsFormData.en_name,
+          nameCH: this.participantsFormData.zh_mane
+        });
       }
+
       // TODO: setup list here
       this.$store.commit('setList', list);
-
       this.$message({
         message: '匯入名單成功',
         type: 'success'
       });
       this.showImport = false;
       this.$nextTick(() => {
-        this.$refs.refFile.clearFiles();
+        if (this.listRadio === 'csv') {
+          this.$refs.refFile.clearFiles();
+        } else {
+          Object.assign(this.participantsFormData, {
+            ...this.defaultParticipantsData
+          });
+        }
         this.$emit('resetConfig');
       });
     },
@@ -594,6 +640,14 @@ export default {
   li {
     margin: 0;
     margin-top: 0px !important;
+  }
+}
+.upload-input {
+  display: flex;
+  flex-direction: column;
+
+  div {
+    margin: 5px 0px;
   }
 }
 .warning-text {
