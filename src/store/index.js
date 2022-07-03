@@ -11,7 +11,7 @@ import {
 } from '@/helper/index';
 
 Vue.use(Vuex);
-const lotteryName = '尾牙抽獎程式';
+const lotteryName = '抽獎程式';
 export default new Vuex.Store({
   state: {
     config: {
