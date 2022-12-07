@@ -36,6 +36,22 @@
         </li>
       </ul>
     </div>
+    <div class="side-right">
+      <el-button class="audio" type="text" @click="playAudio(!audioPlaying)">
+        <i
+          class="iconfont"
+          :class="[audioPlaying ? 'iconstop' : 'iconplay1']"
+        ></i>
+      </el-button>
+
+      <Tool
+        @toggle="toggle"
+        @resetConfig="reloadTagCanvas"
+        @getPhoto="getPhoto"
+        :running="running"
+        :closeRes="closeRes"
+      />
+    </div>
     <transition name="bounce">
       <div id="resbox" v-show="showRes">
         <p @click="showRes = false">{{ categoryName }}抽獎結果：</p>
@@ -77,30 +93,7 @@
         </div>
       </div>
     </transition>
-
-    <el-button
-      class="audio"
-      type="text"
-      @click="
-        () => {
-          playAudio(!audioPlaying);
-        }
-      "
-    >
-      <i
-        class="iconfont"
-        :class="[audioPlaying ? 'iconstop' : 'iconplay1']"
-      ></i>
-    </el-button>
-
     <LotteryConfig :visible.sync="showConfig" @resetconfig="reloadTagCanvas" />
-    <Tool
-      @toggle="toggle"
-      @resetConfig="reloadTagCanvas"
-      @getPhoto="getPhoto"
-      :running="running"
-      :closeRes="closeRes"
-    />
     <Result :visible.sync="showResult"></Result>
 
     <!-- <span class="copy-right">
@@ -436,15 +429,13 @@ export default {
   }
   .audio {
     position: absolute;
-    top: 100px;
-    right: 30px;
+    top: 20px;
     width: 40px;
     height: 40px;
     line-height: 40px;
     border: 1px solid #fec5e5;
     border-radius: 50%;
     padding: 0;
-    text-align: center;
     .iconfont {
       position: relative;
       color: #fa86c4;
@@ -521,5 +512,15 @@ export default {
       z-index: 1;
     }
   }
+}
+.side-right {
+  position: fixed;
+  width: 100px;
+  height: calc(100% - 50px);
+  top: 0px;
+  right: 0px;
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
 }
 </style>

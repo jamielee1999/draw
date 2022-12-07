@@ -10,10 +10,10 @@
     <el-button size="mini" @click="showRemoveoptions = true">
       重置
     </el-button>
-    <el-button size="mini" @click="showImport = true">
+    <el-button size="mini" @click="showImportParticipants = true">
       匯入名單
     </el-button>
-    <el-button size="mini" @click="showAddPrizes = true">
+    <el-button size="mini" @click="showImportPrizes = true">
       匯入獎項
     </el-button>
     <!-- <el-button size="mini" @click="showImportphoto = true">
@@ -104,14 +104,24 @@
     </el-dialog>
     <!-- ====== 獎項 ====== -->
     <el-dialog
-      :visible.sync="showAddPrizes"
+      :visible.sync="showImportPrizes"
       :append-to-body="true"
       width="400px"
       class="default-dialog-config"
       :show-close="false"
+      :before-close="handleClose"
     >
       <div class="add-title" slot="title">增加獎項</div>
+      <el-radio-group class="input-option" v-model="listRadio">
+        <el-radio
+          v-for="option in importListOptions"
+          :label="option.key"
+          :key="option.key"
+          >{{ option.name }}</el-radio
+        >
+      </el-radio-group>
       <el-upload
+        v-if="listRadio === 'csv'"
         class="upload-csv"
         ref="refPrizesFile"
         action
@@ -122,17 +132,27 @@
       >
         <el-button size="small" type="primary">點擊上傳</el-button>
       </el-upload>
+      <div v-if="listRadio === 'text-input'" class="upload-input">
+        <div>
+          <span>獎項名稱</span>
+          <el-input
+            v-model="prizesFormData.name"
+            size="small"
+            placeholder="請輸入獎項名稱"
+          ></el-input>
+        </div>
+      </div>
       <div class="footer">
         <el-button size="mini" type="primary" @click="transformPrizesList"
           >確定</el-button
         >
-        <el-button size="mini" @click="showAddPrizes = false">取消</el-button>
+        <el-button size="mini" @click="closeImportDialog">取消</el-button>
       </div>
     </el-dialog>
     <!-- ====== 名單 ====== -->
     <el-dialog
       :append-to-body="true"
-      :visible.sync="showImport"
+      :visible.sync="showImportParticipants"
       class="default-dialog-config"
       width="400px"
       :show-close="false"
@@ -181,7 +201,7 @@
         <el-button size="mini" type="primary" @click="transformList"
           >確定</el-button
         >
-        <el-button size="mini" @click="showImport = false">取消</el-button>
+        <el-button size="mini" @click="closeImportDialog">取消</el-button>
       </div>
     </el-dialog>
     <!-- ====== 照片 ====== -->
@@ -298,13 +318,16 @@ export default {
       en_name: '',
       zh_mane: ''
     };
+    const defaultPrizesData = {
+      name: ''
+    };
     return {
       importListOptions,
       listRadio: 'csv',
       showSetwat: false,
-      showImport: false,
+      showImportParticipants: false,
       // showImportphoto: false,
-      showAddPrizes: false,
+      showImportPrizes: false,
       showRemoveoptions: false,
       removeInfo: { type: 0 },
       form: {
@@ -316,7 +339,9 @@ export default {
       listData: [],
       prizesData: [],
       defaultParticipantsData,
-      participantsFormData: { ...defaultParticipantsData }
+      defaultPrizesData,
+      participantsFormData: { ...defaultParticipantsData },
+      prizesFormData: { ...defaultPrizesData }
     };
   },
   watch: {
@@ -333,10 +358,10 @@ export default {
     },
     onChange(file) {
       this.listData.length = 0;
-      const cavData = this.listData;
+      const csvData = this.listData;
       Papa.parse(file.raw, {
         complete: function(res) {
-          cavData.push(...res.data);
+          csvData.push(...res.data);
         }
       });
     },
@@ -468,30 +493,26 @@ export default {
     transformList() {
       const list = this.list.length > 0 ? this.list : [];
       if (this.listRadio === 'csv') {
-        if (this.listData.length === 0) {
+        if (this.$refs.refFile.uploadFiles.length === 0) {
           this.$message.error('請匯入資料！');
           return;
         }
-
-        if (this.listData.length > 0) {
-          // 先濾掉 csv 內空的或資料缺少的項目，在將處理後的內容設定到 store list.
-          // ----------------
-          // TODO: 資料格式驗證
-          // ----------------=
-          this.listData
-            .filter(data => data[0] !== '')
-            .forEach((item, index) => {
-              console.log(index);
-              const key = list.length + 1;
-              const name = item[0].trim();
-              const nameCH = item[1] ? item[1].trim() : '-';
-              list.push({
-                key,
-                name,
-                nameCH
-              });
+        // 先濾掉 csv 內空的或資料缺少的項目，在將處理後的內容設定到 store list.
+        // ----------------
+        // TODO: 資料格式驗證
+        // ----------------=
+        this.listData
+          .filter(data => data[0] !== '')
+          .forEach(item => {
+            const key = list.length + 1;
+            const name = item[0].trim();
+            const nameCH = item[1] ? item[1].trim() : '-';
+            list.push({
+              key,
+              name,
+              nameCH
             });
-        }
+          });
       } else {
         const hasParticipantsData = Object.keys(
           this.participantsFormData
@@ -513,31 +534,48 @@ export default {
         message: '匯入名單成功',
         type: 'success'
       });
-      this.showImport = false;
       this.$nextTick(() => {
         if (this.listRadio === 'csv') {
           this.$refs.refFile.clearFiles();
         } else {
-          Object.assign(this.participantsFormData, {
-            ...this.defaultParticipantsData
-          });
+          this.participantsFormData = this.defaultParticipantsData;
         }
+        this.closeImportDialog();
         this.$emit('resetConfig');
       });
     },
     transformPrizesList() {
-      const updatePrizesData = this.prizesData.map(data => {
-        const field = this.randomField();
-        return {
-          key: field,
-          name: data.name
-        };
-      });
-      this.$store.commit('setNewLottery', updatePrizesData);
-
-      if (updatePrizesData.length > 0) {
+      let results = this.lottery.length > 0 ? this.lottery : [];
+      if (this.listRadio === 'csv') {
+        if (this.$refs.refPrizesFile.uploadFiles.length === 0) {
+          this.$message.error('請匯入資料！');
+          return;
+        }
+        results = this.prizesData.map(data => {
+          return {
+            key: this.randomField(),
+            name: data.name
+          };
+        });
+      } else {
+        const hasPrizesData = Object.keys(this.prizesFormData).every(
+          keys => this.prizesFormData[keys]
+        );
+        if (!hasPrizesData) {
+          this.$message.error('請輸入獎項名稱');
+          return;
+        }
+        results = [
+          {
+            key: this.randomField(),
+            name: this.prizesFormData.name
+          }
+        ];
+      }
+      // 獎項預設配比數設定
+      if (results.length > 0) {
         const presetQuantity = 1;
-        updatePrizesData.forEach(item => {
+        results.forEach(item => {
           if (item.key) {
             this.$set(this.config, item.key, presetQuantity);
           }
@@ -545,13 +583,19 @@ export default {
         this.$store.commit('setConfig', this.config);
       }
 
+      this.$store.commit('setNewLottery', results);
       this.$message({
         message: '匯入獎項成功',
         type: 'success'
       });
-      this.showAddPrizes = false;
+
       this.$nextTick(() => {
-        this.$refs.refPrizesFile.clearFiles();
+        if (this.listRadio === 'csv') {
+          this.$refs.refPrizesFile.clearFiles();
+        } else {
+          this.prizesFormData = this.defaultPrizesData;
+        }
+        this.closeImportDialog();
         this.$emit('resetConfig');
       });
     },
@@ -562,16 +606,49 @@ export default {
         fieldStr += str.split('')[randomNum(1, 27) - 1];
       }
       return `${fieldStr}${Date.now()}`;
+    },
+    closeImportDialog() {
+      if (this.showImportParticipants) {
+        this.showImportParticipants = false;
+      }
+      if (this.showImportPrizes) {
+        this.showImportPrizes = false;
+      }
+      this.listRadio = 'csv';
+    },
+    // clearImportData() {
+    //   // 清除名單 Dialog 設定
+    //   if (this.listRadio === 'csv') {
+    //     this.$refs.refFile.clearFiles();
+    //     this.$refs.refPrizesFile.clearFiles();
+    //   } else {
+    //     this.listData.length = 0;
+    //     Object.assign(this.participantsFormData, {
+    //       ...this.defaultParticipantsData
+    //     });
+    //     // 清除獎項 Dialog 設定
+    //     this.prizesData.length = 0;
+    //     Object.assign(this.prizesFormData, {
+    //       ...this.defaultPrizesData
+    //     });
+    //   }
+    // },
+    handleClose(done) {
+      this.$confirm('資料尚未儲存，是否離開？')
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
     }
   }
 };
 </script>
 <style lang="scss" scoped>
 #tool {
-  position: fixed;
-  width: 60px;
+  position: relative;
+  width: 80px;
   top: 50%;
-  right: 20px;
+  // right: 20px;
   transform: translateY(-50%);
   text-align: center;
   display: flex;
@@ -582,6 +659,9 @@ export default {
     margin-top: 20px;
     margin-left: 0px;
   }
+  button {
+    width: 100%;
+  }
 }
 // .setwat-dialog {
 //   .colorred {
@@ -590,7 +670,7 @@ export default {
 //   }
 // }
 .option-config {
-  /deep/ .el-form-item__label {
+  ::v-deep .el-form-item__label {
     text-align: center;
   }
   .el-form-item__content {
@@ -610,7 +690,7 @@ export default {
   }
 }
 .removeoptions {
-  /deep/.el-form-item__content {
+  ::v-deep .el-form-item__content {
     margin-left: 0px !important;
     display: flex;
     flex-direction: column;
@@ -635,7 +715,7 @@ export default {
   padding: 5px;
   display: flex;
 }
-/deep/ .el-upload-list {
+::v-deep .el-upload-list {
   margin: auto 0 !important;
   li {
     margin: 0;
