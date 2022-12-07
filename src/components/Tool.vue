@@ -22,26 +22,39 @@
     <el-dialog
       :append-to-body="true"
       :visible.sync="showSetwat"
-      class="setwat-dialog"
+      class="default-dialog-config setwat-dialog"
       width="400px"
+      :show-close="false"
     >
-      <el-form ref="form" :model="form" label-width="80px" size="mini">
+      <el-form
+        ref="form"
+        :model="form"
+        label-width="80px"
+        size="mini"
+        class="option-config"
+      >
         <el-form-item label="抽取獎項">
           <el-select
             v-model="form.category"
-            placeholder="請選取本次抽取的獎項"
-            no-data-text="尚未匯入獎項"
+            placeholder="請選擇抽取的獎項"
+            no-data-text="尚未配置獎項數量"
           >
             <el-option
               :label="item.label"
               :value="item.value"
               v-for="(item, index) in categorys"
               :key="index"
-            ></el-option>
+            >
+              <span style="float: left">{{ item.label }}</span>
+              <span style="float: right; color: #8492a6; font-size: 12px">{{
+                `${remainingAmount(item.value)}/${config[item.value]}`
+              }}</span>
+            </el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label=" " v-if="form.category">
+        <!-- 剩餘獎項數文字顯示 -->
+        <!-- <el-form-item label=" " v-if="form.category">
           <span>
             共&nbsp;
             <span class="colorred">{{ config[form.category] }}</span>
@@ -52,14 +65,13 @@
             <span class="colorred">{{ remain }}</span>
             &nbsp;名
           </span>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item label="抽取方式">
-          <el-select v-model="form.mode" placeholder="請選取本次抽取方式">
-            <el-option label="抽1人" :value="1"></el-option>
-            <el-option label="抽5人" :value="5"></el-option>
-            <el-option label="一次抽取完" :value="0"></el-option>
-            <el-option label="自設人數" :value="99"></el-option>
+          <el-select v-model="form.mode" placeholder="請選擇抽取方式">
+            <el-option label="抽 1 人" :value="1"></el-option>
+            <el-option label="一次抽完" :value="0"></el-option>
+            <el-option label="自訂人數" :value="99"></el-option>
           </el-select>
         </el-form-item>
 
@@ -73,23 +85,21 @@
             :step="1"
           ></el-input>
         </el-form-item>
-
-        <el-form-item label="全員參與">
-          <el-switch v-model="form.allin"></el-switch>
-          <span :style="{ fontSize: '12px' }">
-            (開啟後將在全體成員[無論有無中獎]中抽獎)
+        <div>
+          <el-form-item label="全員參與">
+            <el-switch v-model="form.allin"></el-switch>
+          </el-form-item>
+          <span class="warning-text">
+            * 開啟後將在全體成員 (無論有無中獎) 中抽獎
           </span>
-        </el-form-item>
+        </div>
 
-        <el-form-item>
-          <el-button
-            type="primary"
-            @click="onSubmit"
-            style="background-color: #f699cd;border-color: #f699cd;"
+        <div class="footer">
+          <el-button size="mini" type="primary" @click="onSubmit"
             >立即抽獎</el-button
           >
-          <el-button @click="showSetwat = false">取消</el-button>
-        </el-form-item>
+          <el-button size="mini" @click="showSetwat = false">取消</el-button>
+        </div>
       </el-form>
     </el-dialog>
     <!-- ====== 獎項 ====== -->
@@ -97,7 +107,7 @@
       :visible.sync="showAddPrizes"
       :append-to-body="true"
       width="400px"
-      class="import-dialog"
+      class="default-dialog-config"
       :show-close="false"
     >
       <div class="add-title" slot="title">增加獎項</div>
@@ -123,12 +133,21 @@
     <el-dialog
       :append-to-body="true"
       :visible.sync="showImport"
-      class="import-dialog"
+      class="default-dialog-config"
       width="400px"
       :show-close="false"
     >
       <div class="add-title" slot="title">匯入名單</div>
+      <el-radio-group class="input-option" v-model="listRadio">
+        <el-radio
+          v-for="option in importListOptions"
+          :label="option.key"
+          :key="option.key"
+          >{{ option.name }}</el-radio
+        >
+      </el-radio-group>
       <el-upload
+        v-if="listRadio === 'csv'"
         class="upload-csv"
         ref="refFile"
         action
@@ -139,6 +158,25 @@
       >
         <el-button size="small" type="primary">點擊上傳</el-button>
       </el-upload>
+      <div v-if="listRadio === 'text-input'" class="upload-input">
+        <div>
+          <span>英文名稱</span>
+          <el-input
+            v-model="participantsFormData.en_name"
+            size="small"
+            placeholder="請輸入英文名稱"
+          ></el-input>
+        </div>
+        <div>
+          <span>中文名稱</span>
+          <el-input
+            v-model="participantsFormData.zh_mane"
+            size="small"
+            placeholder="請輸入中文名稱"
+          ></el-input>
+        </div>
+      </div>
+
       <div class="footer">
         <el-button size="mini" type="primary" @click="transformList"
           >確定</el-button
@@ -155,7 +193,7 @@
     <el-dialog
       :visible.sync="showRemoveoptions"
       width="400px"
-      class="removeoptions"
+      class="default-dialog-config removeoptions"
       :append-to-body="true"
       :show-close="false"
     >
@@ -206,10 +244,8 @@ export default {
     closeRes: Function
   },
   computed: {
-    config: {
-      get() {
-        return this.$store.state.config;
-      }
+    config() {
+      return this.$store.state.config;
     },
     remain() {
       return this.config[this.form.category]
@@ -248,10 +284,26 @@ export default {
   },
   // components: { Importphoto },
   data() {
+    const importListOptions = [
+      {
+        key: 'csv',
+        name: '匯入CSV'
+      },
+      {
+        key: 'text-input',
+        name: '手動輸入(單筆)'
+      }
+    ];
+    const defaultParticipantsData = {
+      en_name: '',
+      zh_mane: ''
+    };
     return {
+      importListOptions,
+      listRadio: 'csv',
       showSetwat: false,
       showImport: false,
-      showImportphoto: false,
+      // showImportphoto: false,
       showAddPrizes: false,
       showRemoveoptions: false,
       removeInfo: { type: 0 },
@@ -262,7 +314,9 @@ export default {
         allin: false
       },
       listData: [],
-      prizesData: []
+      prizesData: [],
+      defaultParticipantsData,
+      participantsFormData: { ...defaultParticipantsData }
     };
   },
   watch: {
@@ -273,6 +327,10 @@ export default {
     }
   },
   methods: {
+    remainingAmount(key) {
+      const numberOfResults = this.result[key] ? this.result[key].length : 0;
+      return this.config[key] ? this.config[key] - numberOfResults : 0;
+    },
     onChange(file) {
       this.listData.length = 0;
       const cavData = this.listData;
@@ -311,10 +369,18 @@ export default {
               database.clear(DB_STORE_NAME);
               break;
             case 1:
-              this.form.category = '';
-              removeData(configField);
-              this.$store.commit('clearConfig');
-              break;
+              if (_.isEmpty(this.result)) {
+                this.form.category = '';
+                removeData(configField);
+                this.$store.commit('clearConfig');
+                break;
+              } else {
+                this.$message({
+                  type: 'warning',
+                  message: '已進行過抽獎，請先重置結果後再重置獎項!'
+                });
+                return;
+              }
             case 2:
               if (_.isEmpty(this.result)) {
                 removeData(listField);
@@ -323,7 +389,7 @@ export default {
               } else {
                 this.$message({
                   type: 'warning',
-                  message: '已進行過抽獎，無法單獨重置名單!'
+                  message: '已進行過抽獎，請先重置結果後再重置名單!'
                 });
                 return;
               }
@@ -373,7 +439,7 @@ export default {
           return this.$message.error('本次抽獎人數已超過本獎項的剩餘人數');
         }
       }
-      if (this.form.mode === 1 || this.form.mode === 5) {
+      if (this.form.mode === 1) {
         if (this.form.mode > this.remain) {
           return this.$message.error('本次收講人數已抽過本獎項的剩餘人數');
         }
@@ -400,30 +466,62 @@ export default {
       }
     },
     transformList() {
-      if (this.listData.length === 0) {
-        this.$message.error('沒有數據');
-      }
-      const list = [];
-      if (this.listData.length > 0) {
-        this.listData.forEach(item => {
-          const key = Number(item[0].trim());
-          const name = item[1].trim();
-          list.push({
-            key,
-            name
-          });
+      const list = this.list.length > 0 ? this.list : [];
+      if (this.listRadio === 'csv') {
+        if (this.listData.length === 0) {
+          this.$message.error('請匯入資料！');
+          return;
+        }
+
+        if (this.listData.length > 0) {
+          // 先濾掉 csv 內空的或資料缺少的項目，在將處理後的內容設定到 store list.
+          // ----------------
+          // TODO: 資料格式驗證
+          // ----------------=
+          this.listData
+            .filter(data => data[0] !== '')
+            .forEach((item, index) => {
+              console.log(index);
+              const key = list.length + 1;
+              const name = item[0].trim();
+              const nameCH = item[1] ? item[1].trim() : '-';
+              list.push({
+                key,
+                name,
+                nameCH
+              });
+            });
+        }
+      } else {
+        const hasParticipantsData = Object.keys(
+          this.participantsFormData
+        ).every(keys => this.participantsFormData[keys]);
+        if (!hasParticipantsData) {
+          this.$message.error('資料輸入不完整，請重新確認輸入的資料！');
+          return;
+        }
+        list.push({
+          key: this.list.length + 1,
+          name: this.participantsFormData.en_name,
+          nameCH: this.participantsFormData.zh_mane
         });
       }
+
       // TODO: setup list here
       this.$store.commit('setList', list);
-
       this.$message({
         message: '匯入名單成功',
         type: 'success'
       });
       this.showImport = false;
       this.$nextTick(() => {
-        this.$refs.refFile.clearFiles();
+        if (this.listRadio === 'csv') {
+          this.$refs.refFile.clearFiles();
+        } else {
+          Object.assign(this.participantsFormData, {
+            ...this.defaultParticipantsData
+          });
+        }
         this.$emit('resetConfig');
       });
     },
@@ -435,8 +533,18 @@ export default {
           name: data.name
         };
       });
-
       this.$store.commit('setNewLottery', updatePrizesData);
+
+      if (updatePrizesData.length > 0) {
+        const presetQuantity = 1;
+        updatePrizesData.forEach(item => {
+          if (item.key) {
+            this.$set(this.config, item.key, presetQuantity);
+          }
+        });
+        this.$store.commit('setConfig', this.config);
+      }
+
       this.$message({
         message: '匯入獎項成功',
         type: 'success'
@@ -475,17 +583,30 @@ export default {
     margin-left: 0px;
   }
 }
-.setwat-dialog {
-  .colorred {
-    color: red;
-    font-weight: bold;
+// .setwat-dialog {
+//   .colorred {
+//     color: red;
+//     font-weight: bold;
+//   }
+// }
+.option-config {
+  /deep/ .el-form-item__label {
+    text-align: center;
+  }
+  .el-form-item__content {
+    div {
+      width: 100%;
+    }
   }
 }
-.import-dialog {
+.default-dialog-config {
   .footer {
-    height: 50px;
-    line-height: 50px;
+    height: 40px;
+    line-height: 40px;
     text-align: center;
+    button {
+      width: 80px;
+    }
   }
 }
 .removeoptions {
@@ -505,11 +626,6 @@ export default {
   .el-radio.is-bordered {
     margin-bottom: 10px;
   }
-  .footer {
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-  }
 }
 
 .upload-csv {
@@ -519,11 +635,29 @@ export default {
   padding: 5px;
   display: flex;
 }
-.el-upload-list {
+/deep/ .el-upload-list {
   margin: auto 0 !important;
   li {
     margin: 0;
     margin-top: 0px !important;
   }
+}
+.upload-input {
+  display: flex;
+  flex-direction: column;
+
+  div {
+    margin: 5px 0px;
+  }
+}
+.warning-text {
+  position: relative;
+  left: 10px;
+  top: -6px;
+  font-size: 12px;
+  color: #ff2f2f;
+}
+.input-option {
+  margin-bottom: 10px;
 }
 </style>

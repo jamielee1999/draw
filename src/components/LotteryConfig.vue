@@ -11,13 +11,15 @@
       <span :style="{ fontSize: '16px', marginRight: '20px' }">
         抽獎設定
       </span>
-      <el-button size="mini" @click="addLottery">增加獎項</el-button>
-      <el-button size="mini" type="primary" @click="onSubmit"
-        >儲存設定</el-button
-      >
-      <el-button size="mini" @click="$emit('update:visible', false)"
-        >取消</el-button
-      >
+      <div>
+        <!-- <el-button size="mini" @click="addLottery">增加獎項</el-button> -->
+        <el-button size="mini" type="primary" @click="onSubmit"
+          >儲存設定</el-button
+        >
+        <el-button size="mini" @click="$emit('update:visible', false)"
+          >取消</el-button
+        >
+      </div>
     </div>
     <div class="container">
       <el-form ref="form" :model="form" size="mini">
@@ -45,7 +47,7 @@
       </el-form>
     </div>
 
-    <el-dialog
+    <!-- <el-dialog
       :visible.sync="showAddLottery"
       :append-to-body="true"
       width="300px"
@@ -61,7 +63,7 @@
           <el-button @click="showAddLottery = false">取消</el-button>
         </el-form-item>
       </el-form>
-    </el-dialog>
+    </el-dialog> -->
   </el-dialog>
 </template>
 <script>
@@ -171,5 +173,9 @@ export default {
   .el-dialog {
     height: 186px;
   }
+}
+.c-LotteryConfigtitle {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

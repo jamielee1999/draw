@@ -5,12 +5,13 @@ import {
   resultField,
   newLotteryField,
   listField,
+  configField,
   getNumberOfPeople,
   updateNumberOfPeople
 } from '@/helper/index';
 
 Vue.use(Vuex);
-const lotteryName = '尾牙抽獎程式';
+const lotteryName = '抽獎程式';
 export default new Vuex.Store({
   state: {
     config: {
@@ -52,6 +53,7 @@ export default new Vuex.Store({
     },
     setConfig(state, config) {
       state.config = config;
+      setData(configField, config);
     },
     setResult(state, result = {}) {
       state.result = result;

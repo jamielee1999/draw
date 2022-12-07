@@ -103,9 +103,9 @@
     />
     <Result :visible.sync="showResult"></Result>
 
-    <span class="copy-right">
+    <!-- <span class="copy-right">
       Copyright©zhangyongfeng5350@gmail.com
-    </span>
+    </span> -->
 
     <audio
       id="audiobg"
