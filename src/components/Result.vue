@@ -183,11 +183,11 @@ export default {
 }
 
 .lottery-result {
-  /deep/.el-dialog {
+  ::v-deep.el-dialog {
     height: 500px;
     margin: 0 auto;
   }
-  /deep/.el-dialog__body {
+  ::v-deep .el-dialog__body {
     overflow: auto;
     height: 410px; // dialog height - dialog header height - padding top & bottom (20px)
     padding-bottom: 0px !important;
