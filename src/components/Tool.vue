@@ -222,12 +222,21 @@
         <el-form-item>
           <el-radio-group v-model="removeInfo.type">
             <el-radio border :label="0">重置全部</el-radio>
-            <el-radio border :label="1">重置獎項</el-radio>
-            <el-radio border :label="2">重置名單</el-radio>
+            <el-radio border :label="1" :disabled="lottery.length === 0"
+              >重置獎項</el-radio
+            >
+            <el-radio border :label="2" :disabled="list.length === 0"
+              >重置名單</el-radio
+            >
             <!--
             <el-radio border :label="3">重置照片</el-radio>
             -->
-            <el-radio border :label="4">重置結果</el-radio>
+            <el-radio
+              border
+              :label="4"
+              :disabled="Object.keys(result).length === 0"
+              >重置結果</el-radio
+            >
           </el-radio-group>
         </el-form-item>
         <div class="footer">
