@@ -21,6 +21,7 @@
     </el-button> -->
     <el-dialog
       :append-to-body="true"
+      title="抽獎設定"
       :visible.sync="showSetwat"
       class="default-dialog-config setwat-dialog"
       width="400px"
@@ -85,14 +86,14 @@
             :step="1"
           ></el-input>
         </el-form-item>
-        <div>
+        <!-- <div>
           <el-form-item label="全員參與">
             <el-switch v-model="form.allin"></el-switch>
           </el-form-item>
           <span class="warning-text">
             * 開啟後將在全體成員 (無論有無中獎) 中抽獎
           </span>
-        </div>
+        </div> -->
 
         <div class="footer">
           <el-button size="mini" type="primary" @click="onSubmit"

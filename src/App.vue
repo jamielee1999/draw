@@ -70,25 +70,35 @@
             }"
           >
             <span class="cont" v-if="!photos.find(d => d.id === item)">
-              <span
+              <div
+                v-if="!!list.find(d => d.key === item)"
+                class="flex-column line-height-initial"
+                :style="{
+                  fontSize: '40px'
+                }"
+              >
+                <span>{{ list.find(d => d.key === item).name }}</span>
+                <span>{{ list.find(d => d.key === item).nameCH }}</span>
+              </div>
+              <!-- <span
                 v-if="!!list.find(d => d.key === item)"
                 :style="{
                   fontSize: '40px'
                 }"
               >
                 {{ list.find(d => d.key === item).name }}
-              </span>
+              </span> -->
               <span v-else>
                 {{ item }}
               </span>
             </span>
-            <img
+            <!-- <img
               v-if="photos.find(d => d.id === item)"
               :src="photos.find(d => d.id === item).value"
               alt="photo"
               :width="160"
               :height="160"
-            />
+            /> -->
           </span>
         </div>
       </div>
@@ -481,7 +491,7 @@ export default {
     background: #fff;
     // width: 160px;
     height: 160px;
-    padding: 0 10px;
+    padding: 0 20px;
     border-radius: 4px;
     border: 1px solid #ccc;
     line-height: 160px;
@@ -522,5 +532,12 @@ export default {
   margin-top: 50px;
   display: flex;
   justify-content: center;
+}
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+.line-height-initial {
+  line-height: initial;
 }
 </style>
