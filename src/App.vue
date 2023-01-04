@@ -24,12 +24,7 @@
       <ul v-for="item in datas" :key="item.key">
         <li>
           // TODO: change color here
-          <a
-            href="javascript:void(0);"
-            :style="{
-              color: '#E0414E'
-            }"
-          >
+          <a href="javascript:void(0);">
             {{ item.name ? item.name : item.key }}
             <img v-if="item.photo" :src="item.photo" :width="50" :height="50" />
           </a>
@@ -333,7 +328,7 @@ export default {
     createCanvas() {
       const canvas = document.createElement('canvas');
       canvas.width = document.body.offsetWidth;
-      canvas.height = document.body.offsetHeight;
+      canvas.height = document.body.offsetHeight * 0.8;
       canvas.id = 'rootcanvas';
       this.$el.querySelector('#main').appendChild(canvas);
     },
@@ -341,10 +336,10 @@ export default {
       this.createCanvas();
       const { speed } = this;
       window.TagCanvas.Start('rootcanvas', 'tags', {
-        textColour: null,
+        textColour: '#fff',
         initial: speed(),
         dragControl: 1,
-        textHeight: 20,
+        textHeight: 32,
         noSelect: true,
         lock: 'xy'
       });
@@ -467,7 +462,7 @@ export default {
         rgba(230, 230, 230, 0),
         rgba(0, 38, 111, 0.35)
       ),
-      url(/img/onead_2023.7642b816.jpg);
+      url(./assets/onead_2023.jpg);
     background-size: 100% 100%;
     background-position: center center;
     background-repeat: no-repeat;

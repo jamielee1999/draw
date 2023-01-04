@@ -52,7 +52,7 @@ export default {
           const listOfWinners = result[item].map(id => this.mapList(id));
           message.push({
             key: index + 1,
-            title: `${label}抽獎結果:`,
+            title: `${label}：`,
             value: `${
               listOfWinners.length > 0 ? listOfWinners.join('、') : '暫未抽取'
             }`
