@@ -481,6 +481,7 @@ export default {
   .mask {
     -webkit-filter: blur(5px);
     filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.25);
   }
   header {
     background-color: #e4be85;
