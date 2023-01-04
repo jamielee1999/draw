@@ -14,7 +14,7 @@ export function useExcelJS(sheetName, bookType = 'xlsx') {
   function createSheet(workbook, data) {
     const wbName = sheetName || 'SheetJS';
     const sheet = workbook.addWorksheet(wbName);
-    sheet.properties.defaultColWidth = 15;
+    sheet.properties.defaultColWidth = 24;
     sheet.views = [
       {
         state: 'frozen',

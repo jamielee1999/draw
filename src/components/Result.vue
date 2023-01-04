@@ -148,7 +148,10 @@ export default {
     exportResultsData() {
       const resultsData = Object.keys(this.result).map(key => {
         const winningPartner = this.result[key].map(
-          id => `${id} ${this.personsList.find(data => data.key === id).name}`
+          id =>
+            `${id} ${this.personsList.find(data => data.key === id).name} ${
+              this.personsList.find(data => data.key === id).nameCH
+            }`
         );
         return {
           name: this.lottery.find(data => data.key === key).name,
