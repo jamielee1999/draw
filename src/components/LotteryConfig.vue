@@ -30,6 +30,10 @@
         </div>
       </div>
       <div class="container">
+        <div class="flex justify-content-end ">
+          <span class="me-2 warning-color">*</span>
+          {{ `已配置獎品數量：${totalQueued}` }}
+        </div>
         <el-form ref="form" :model="form" size="mini">
           <el-form-item label="抽獎標題">
             <el-input v-model="form.name"></el-input>
@@ -149,16 +153,7 @@ export default {
       }
       return `${fieldStr}${Date.now()}`;
     },
-    addHandler() {
-      const field = this.randomField(); // 取得亂碼，做識別碼用.
-      const data = {
-        key: field,
-        name: this.newLottery.name
-      };
-      this.$store.commit('setNewLottery', data);
 
-      this.showAddLottery = false;
-    },
     UpdateNumberOfAwards(value, item) {
       console.log(this.totalQueued);
       const result = Number(value) ? Number(value) : 0;
@@ -171,6 +166,7 @@ export default {
 };
 </script>
 <style lang="scss">
+@import '@/assets/style/global.scss';
 .c-LotteryConfig {
   .el-dialog__body {
     height: 340px;
@@ -193,5 +189,8 @@ export default {
 .mamber-list-dialog {
   top: 0 !important;
   transform: initial !important;
+}
+.warning-color {
+  color: red;
 }
 </style>

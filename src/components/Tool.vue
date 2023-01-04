@@ -142,6 +142,15 @@
             placeholder="請輸入獎項名稱"
           ></el-input>
         </div>
+        <div>
+          <span>配置數量</span>
+          <el-input
+            v-model="prizesFormData.number"
+            size="small"
+            placeholder="請輸入數量"
+            @input="checkNumInput"
+          ></el-input>
+        </div>
       </div>
       <div class="footer">
         <el-button size="mini" type="primary" @click="transformPrizesList"
@@ -258,9 +267,11 @@ import {
   clearData,
   removeData,
   configField,
+  newLotteryField,
   listField,
   resultField,
-  conversionCategoryName
+  conversionCategoryName,
+  getNumberOfPeople
 } from '@/helper/index';
 // import Importphoto from './Importphoto';
 import { database, DB_STORE_NAME } from '@/helper/db';
@@ -383,7 +394,8 @@ export default {
           res.data.forEach(data => {
             csvData.push({
               key: data[0],
-              name: data[1]
+              name: data[1],
+              number: data[2]
             });
           });
         }
@@ -407,6 +419,7 @@ export default {
               if (_.isEmpty(this.result)) {
                 this.form.category = '';
                 removeData(configField);
+                removeData(newLotteryField);
                 this.$store.commit('clearConfig');
                 break;
               } else {
@@ -561,10 +574,11 @@ export default {
           this.$message.error('請匯入資料！');
           return;
         }
-        results = this.prizesData.map(data => {
+        results = this.prizesData.map(({ name, number }) => {
           return {
             key: this.randomField(),
-            name: data.name
+            name: name,
+            number: Number(number) || 0
           };
         });
       } else {
@@ -578,22 +592,27 @@ export default {
         results = [
           {
             key: this.randomField(),
-            name: this.prizesFormData.name
+            name: this.prizesFormData.name,
+            number: Number(this.prizesFormData.number)
           }
         ];
       }
+
+      this.$store.commit('setNewLottery', results);
+
       // 獎項預設配比數設定
-      if (results.length > 0) {
-        const presetQuantity = 1;
-        results.forEach(item => {
+      if (this.lottery.length > 0) {
+        this.$store.state.config = {
+          name: this.config.name,
+          number: getNumberOfPeople(this.$store.state)
+        };
+        this.lottery.forEach(item => {
           if (item.key) {
-            this.$set(this.config, item.key, presetQuantity);
+            this.$set(this.config, item.key, item.number);
           }
         });
         this.$store.commit('setConfig', this.config);
       }
-
-      this.$store.commit('setNewLottery', results);
       this.$message({
         message: '匯入獎項成功',
         type: 'success'
@@ -649,6 +668,13 @@ export default {
           done();
         })
         .catch(() => {});
+    },
+    checkNumInput(val) {
+      if (typeof val === 'string') {
+        this.prizesFormData.number = Number.isNaN(parseInt(val, 10))
+          ? 0
+          : Math.abs(parseInt(val, 10));
+      }
     }
   }
 };
