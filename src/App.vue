@@ -27,7 +27,7 @@
           <a
             href="javascript:void(0);"
             :style="{
-              color: '#e11584'
+              color: '#E0414E'
             }"
           >
             {{ item.name ? item.name : item.key }}
@@ -141,6 +141,7 @@ import {
 import { luckydrawHandler } from '@/helper/algorithm';
 import Result from '@/components/Result';
 import { database, DB_STORE_NAME } from '@/helper/db';
+// import axios from 'axios';
 export default {
   name: 'App',
 
@@ -174,6 +175,9 @@ export default {
     },
     list() {
       return this.$store.state.list;
+    },
+    lottery() {
+      return this.$store.state.newLottery;
     },
     allresult() {
       let allresult = [];
@@ -398,10 +402,55 @@ export default {
           [category]: oldRes.concat(resArr)
         });
         this.result = data;
+        // this.updateResultToGoogleSheet(category, resArr);
         window.TagCanvas.SetSpeed('rootcanvas', [5, 1]);
         this.running = !this.running;
       }
     }
+    // updateResultToGoogleSheet(key, winnerIds) {
+    // const data = JSON.stringify({
+    //   name: winnerIds.map(id => this.list.find(data => data.key === id).name),
+    //   nameCH: winnerIds.map(
+    //     id => this.list.find(data => data.key === id).nameCH
+    //   ),
+    //   prize: this.lottery.find(data => data.key === key).name
+    // });
+    // axios
+    //   .post(
+    //     'https://script.google.com/macros/s/AKfycbwYrVlL91tTCHmdNnpgcOBW1Jym4rRiqikRW5-DoxtVXPFiPN5NceDGS_H1mjhiv9ik/exec',
+    //     data
+    //   )
+    //   .then(function(response) {
+    //     console.log(response.data);
+    //   })
+    //   .catch(function(error) {
+    //     console.log(error);
+    //   });
+    // const request = axios.create({
+    //   baseURL: `https://script.google.com/`,
+    //   timeout: 5000,
+    //   headers: {
+    //     'Content-Type': 'text/plain; charset=utf-8',
+    //     'Access-Control-Allow-Origin': '*'
+    //   }
+    // });
+    // request
+    //   .post(
+    //     'macros/s/AKfycbwYrVlL91tTCHmdNnpgcOBW1Jym4rRiqikRW5-DoxtVXPFiPN5NceDGS_H1mjhiv9ik/exec',
+    //     data
+    //   )
+    //   .then(res => {
+    //     console.log(res);
+    //     debugger;
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //     this.$message({
+    //       message: '更新雲端表單失敗',
+    //       type: 'warning'
+    //     });
+    //   });
+    // }
   }
 };
 </script>
@@ -409,18 +458,33 @@ export default {
 #root {
   height: 100%;
   position: relative;
-  background-image: url('./assets/pink_heart_bg.jpg');
-  background-size: 100% 100%;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-color: #121936;
+  &::after {
+    content: '';
+    height: 100%;
+    position: absolute;
+    background-image: linear-gradient(
+        to bottom,
+        rgba(230, 230, 230, 0),
+        rgba(0, 38, 111, 0.35)
+      ),
+      url(/img/onead_2023.7642b816.jpg);
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: #121936;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+
   .mask {
     -webkit-filter: blur(5px);
     filter: blur(5px);
   }
   header {
-    background-color: #fd5da8;
-    opacity: 60%;
+    background-color: #e4be85;
+    // opacity: 60%;
     height: 50px;
     line-height: 50px;
     position: relative;
@@ -443,12 +507,13 @@ export default {
     width: 40px;
     height: 40px;
     line-height: 40px;
-    border: 1px solid #fec5e5;
+    border: 1px solid #fc5f49;
     border-radius: 50%;
     padding: 0;
+    z-index: 1;
     .iconfont {
       position: relative;
-      color: #fa86c4;
+      color: #fc5f49;
       left: 1px;
     }
   }
@@ -481,6 +546,7 @@ export default {
     color: red;
     font-size: 50px;
     line-height: 120px;
+    text-shadow: 0.03em 0.03em 0 hsl(230deg 40% 50%);
   }
   .container {
     display: flex;

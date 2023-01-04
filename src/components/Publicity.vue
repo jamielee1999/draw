@@ -79,7 +79,7 @@ export default {
   /* TODO: change color here */
   .item {
     text-align: center;
-    color: #fff;
+    color: #fd512a;
     font-weight: 700;
     font-size: 16px;
     .title {

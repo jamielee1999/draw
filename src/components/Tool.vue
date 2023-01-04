@@ -4,7 +4,7 @@
       @click="startHandler"
       type="primary"
       size="mini"
-      style="background-color: #f699cd;border-color: #f699cd;"
+      style="background-color: #fd512a;border-color: #fd512a;"
       >{{ running ? '停止' : '開始' }}</el-button
     >
     <el-button size="mini" @click="showRemoveoptions = true">
