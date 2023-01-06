@@ -1,5 +1,6 @@
 <template>
   <div id="root">
+    <div class="scss-snow-bg"></div>
     <header>
       <Publicity v-show="!running" />
       <el-button
@@ -275,6 +276,7 @@ export default {
       this.getPhoto();
     }, 1000);
     window.addEventListener('resize', this.reportWindowSize);
+    this.appendSnowEffects();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.reportWindowSize);
@@ -401,51 +403,20 @@ export default {
         window.TagCanvas.SetSpeed('rootcanvas', [5, 1]);
         this.running = !this.running;
       }
+    },
+    appendSnowEffects() {
+      const box = document.querySelector('.scss-snow-bg');
+
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < 200; i++) {
+        let snow = document.createElement('div');
+        snow.classList.add('snow');
+        fragment.appendChild(snow);
+      }
+
+      box.appendChild(fragment);
     }
-    // updateResultToGoogleSheet(key, winnerIds) {
-    // const data = JSON.stringify({
-    //   name: winnerIds.map(id => this.list.find(data => data.key === id).name),
-    //   nameCH: winnerIds.map(
-    //     id => this.list.find(data => data.key === id).nameCH
-    //   ),
-    //   prize: this.lottery.find(data => data.key === key).name
-    // });
-    // axios
-    //   .post(
-    //     'https://script.google.com/macros/s/AKfycbwYrVlL91tTCHmdNnpgcOBW1Jym4rRiqikRW5-DoxtVXPFiPN5NceDGS_H1mjhiv9ik/exec',
-    //     data
-    //   )
-    //   .then(function(response) {
-    //     console.log(response.data);
-    //   })
-    //   .catch(function(error) {
-    //     console.log(error);
-    //   });
-    // const request = axios.create({
-    //   baseURL: `https://script.google.com/`,
-    //   timeout: 5000,
-    //   headers: {
-    //     'Content-Type': 'text/plain; charset=utf-8',
-    //     'Access-Control-Allow-Origin': '*'
-    //   }
-    // });
-    // request
-    //   .post(
-    //     'macros/s/AKfycbwYrVlL91tTCHmdNnpgcOBW1Jym4rRiqikRW5-DoxtVXPFiPN5NceDGS_H1mjhiv9ik/exec',
-    //     data
-    //   )
-    //   .then(res => {
-    //     console.log(res);
-    //     debugger;
-    //   })
-    //   .catch(err => {
-    //     console.log(err);
-    //     this.$message({
-    //       message: '更新雲端表單失敗',
-    //       type: 'warning'
-    //     });
-    //   });
-    // }
   }
 };
 </script>
@@ -601,5 +572,54 @@ export default {
 }
 .line-height-initial {
   line-height: initial;
+}
+.scss-snow-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  // background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  overflow: hidden;
+  filter: drop-shadow(0 0 10px white);
+}
+
+$total: 200;
+.snow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+}
+@function random_range($min, $max) {
+  $rand: random();
+  $random_range: $min + floor($rand * (($max - $min) + 1));
+  @return $random_range;
+}
+@for $i from 1 through $total {
+  $random-x: random(1000000) * 0.0001vw;
+  $random-offset: random_range(-100000, 100000) * 0.0001vw;
+  $random-x-end: $random-x + $random-offset;
+  $random-x-end-yoyo: $random-x + ($random-offset / 2);
+  $random-yoyo-time: random_range(30000, 80000) / 100000;
+  $random-yoyo-y: $random-yoyo-time * 100vh;
+  $random-scale: random(10000) * 0.0001;
+  $fall-duration: random_range(10, 30) * 1s;
+  $fall-delay: random(30) * -1s;
+
+  .snow:nth-child(#{$i}) {
+    opacity: random(10000) * 0.0001;
+    transform: translate($random-x, -10px) scale($random-scale);
+    animation: fall-#{$i} $fall-duration $fall-delay linear infinite;
+  }
+
+  @keyframes fall-#{$i} {
+    #{percentage($random-yoyo-time)} {
+      transform: translate($random-x-end, $random-yoyo-y) scale($random-scale);
+    }
+
+    to {
+      transform: translate($random-x-end-yoyo, 100vh) scale($random-scale);
+    }
+  }
 }
 </style>
