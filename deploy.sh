@@ -17,9 +17,9 @@ git add -A
 git commit -m 'deploy'
 
 # 部署到 https://<USERNAME>.github.io
-# git push -f git@github.com:jamielee1999/jamielee1999.github.io.git main
+git push -f git@github.com:jamielee1999/jamielee1999.github.io.git main
 
 # 部署到 https://<USERNAME>.github.io/<REPO>
-# git push -f ggit@github.com:jamielee1999/draw.git main:gh-pages
+git push -f ggit@github.com:jamielee1999/draw.git main:gh-pages
 
 cd -
