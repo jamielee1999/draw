@@ -513,7 +513,6 @@ export default {
     color: red;
     font-size: 50px;
     line-height: 120px;
-    text-shadow: 0.03em 0.03em 0 hsl(230deg 40% 50%);
   }
   .container {
     display: flex;
