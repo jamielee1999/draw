@@ -9,7 +9,9 @@
     >
       <el-carousel-item v-for="item in message" :key="item.key">
         <div class="item" :class="{ actiname: item.key === 0 }">
-          <span v-if="item.title" class="title"> {{ item.title }}</span>
+          <span v-if="item.title" class="title text-main-300">
+            {{ item.title }}</span
+          >
           <span v-if="item.value" class="value">
             {{ mapList(item.value) }}
           </span>
@@ -48,7 +50,7 @@ export default {
       let message = [{ key: 0, title: config.name }];
       fields.forEach((item, index) => {
         let label = conversionCategoryName(item);
-        if (result[item] && config[item] > 0) {
+        if (result[item] && config.prizes[item] > 0) {
           const listOfWinners = result[item].map(id => this.mapList(id));
           message.push({
             key: index + 1,
@@ -65,7 +67,7 @@ export default {
   }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .c-Publicity {
   height: 100%;
   background-color: rgba(255, 255, 255, 0.1);
@@ -79,18 +81,13 @@ export default {
   /* TODO: change color here */
   .item {
     text-align: center;
-    color: #fd512a;
     font-weight: 700;
     font-size: 16px;
-    .title {
-      color: #3e4244;
-    }
     .value {
       margin-left: 10px;
     }
     &.actiname {
       .title {
-        color: #3e4244;
         font-size: 20px;
       }
     }

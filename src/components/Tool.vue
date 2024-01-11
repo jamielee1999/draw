@@ -1,28 +1,26 @@
 <template>
-  <div id="tool">
-    <el-button
-      @click="startHandler"
-      type="primary"
-      size="mini"
-      style="background-color: #fd512a;border-color: #fd512a;"
-      >{{ running ? '停止' : '開始' }}</el-button
-    >
-    <el-button size="mini" @click="showRemoveoptions = true">
-      重置
-    </el-button>
-    <el-button size="mini" @click="showImportParticipants = true">
-      匯入名單
-    </el-button>
-    <el-button size="mini" @click="showImportPrizes = true">
-      匯入獎項
-    </el-button>
-    <!-- <el-button size="mini" @click="showImportphoto = true">
-      導入照片
-    </el-button> -->
+  <div class="tool">
+    <div class="button-list">
+      <el-button size="mini" @click="showImportParticipants = true">
+        匯入名單
+      </el-button>
+      <el-button size="mini" @click="showImportPrizes = true">
+        匯入獎項
+      </el-button>
+      <el-button
+        size="mini"
+        type="danger"
+        plain
+        @click="showRemoveoptions = true"
+      >
+        重置
+      </el-button>
+    </div>
+
     <el-dialog
       :append-to-body="true"
       title="抽獎設定"
-      :visible.sync="showSetwat"
+      :visible.sync="showLotteryModal"
       class="default-dialog-config setwat-dialog"
       width="400px"
       :show-close="false"
@@ -43,12 +41,12 @@
             <el-option
               :label="item.label"
               :value="item.value"
-              v-for="(item, index) in categorys"
-              :key="index"
+              v-for="item in categories"
+              :key="item.value"
             >
               <span style="float: left">{{ item.label }}</span>
               <span style="float: right; color: #8492a6; font-size: 12px">{{
-                `${remainingAmount(item.value)}/${config[item.value]}`
+                `${remainingAmount(item.value)}/${item.number}`
               }}</span>
             </el-option>
           </el-select>
@@ -99,7 +97,9 @@
           <el-button size="mini" type="primary" @click="onSubmit"
             >立即抽獎</el-button
           >
-          <el-button size="mini" @click="showSetwat = false">取消</el-button>
+          <el-button size="mini" @click="setLotteryModalShow(false)"
+            >取消</el-button
+          >
         </div>
       </el-form>
     </el-dialog>
@@ -185,7 +185,11 @@
         accept=".csv"
         :auto-upload="false"
         :on-change="onChange"
+        :before-remove="beforeRemove"
       >
+        <div v-show="!listData.length" slot="tip" class="el-upload__tip ms-2">
+          只能上傳 csv 檔案
+        </div>
         <el-button size="small" type="primary">點擊上傳</el-button>
       </el-upload>
       <div v-if="listRadio === 'text-input'" class="upload-input">
@@ -207,7 +211,7 @@
         </div>
       </div>
 
-      <div class="footer">
+      <div class="footer mt-5">
         <el-button size="mini" type="primary" @click="transformList"
           >確定</el-button
         >
@@ -268,9 +272,9 @@ import {
   removeData,
   configField,
   newLotteryField,
+  conversionCategoryName,
   listField,
   resultField,
-  conversionCategoryName,
   getNumberOfPeople
 } from '@/helper/index';
 // import Importphoto from './Importphoto';
@@ -278,6 +282,7 @@ import { database, DB_STORE_NAME } from '@/helper/db';
 import Papa from 'papaparse';
 import { randomNum } from '@/helper/algorithm';
 import _ from 'lodash';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   props: {
@@ -285,38 +290,35 @@ export default {
     closeRes: Function
   },
   computed: {
+    ...mapState(['config', 'result', 'list', 'showLotteryModal']),
+    lottery() {
+      return this.$store.state.newLottery;
+    },
     config() {
       return this.$store.state.config;
     },
     remain() {
-      return this.config[this.form.category]
-        ? this.config[this.form.category] -
+      const { prizes } = this.config;
+      return prizes[this.form.category]
+        ? prizes[this.form.category].number -
             (this.result[this.form.category]
               ? this.result[this.form.category].length
               : 0)
-        : '';
+        : 0;
     },
-    result() {
-      return this.$store.state.result;
-    },
-    list() {
-      return this.$store.state.list;
-    },
-    lottery() {
-      return this.$store.state.newLottery;
-    },
-    categorys() {
+    categories() {
+      const { prizes } = this.config;
       const options = [];
-      for (const key in this.config) {
-        if (this.config.hasOwnProperty(key)) {
-          const item = this.config[key];
-          if (item > 0) {
-            let name = conversionCategoryName(key);
-            name &&
-              options.push({
-                label: name,
-                value: key
-              });
+      for (const key in prizes) {
+        if (prizes.hasOwnProperty(key)) {
+          const prizeNum = prizes[key].number;
+          const name = conversionCategoryName(key);
+          if (prizeNum > 0 && name) {
+            options.push({
+              label: name,
+              value: key,
+              number: prizeNum
+            });
           }
         }
       }
@@ -345,7 +347,6 @@ export default {
     return {
       importListOptions,
       listRadio: 'csv',
-      showSetwat: false,
       showImportParticipants: false,
       // showImportphoto: false,
       showImportPrizes: false,
@@ -373,12 +374,14 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['setLotteryModalShow']),
     remainingAmount(key) {
+      const { prizes } = this.config;
       const numberOfResults = this.result[key] ? this.result[key].length : 0;
-      return this.config[key] ? this.config[key] - numberOfResults : 0;
+      return prizes[key] ? prizes[key].number - numberOfResults : 0;
     },
     onChange(file) {
-      this.listData.length = 0;
+      this.listData = [];
       const csvData = this.listData;
       Papa.parse(file.raw, {
         complete: function(res) {
@@ -387,7 +390,7 @@ export default {
       });
     },
     onChangePrizes(file) {
-      this.prizesData.length = 0;
+      this.prizesData = [];
       const csvData = this.prizesData;
       Papa.parse(file.raw, {
         complete: function(res) {
@@ -489,29 +492,14 @@ export default {
       }
       if (this.form.mode === 1) {
         if (this.form.mode > this.remain) {
-          return this.$message.error('本次收講人數已抽過本獎項的剩餘人數');
+          return this.$message.error('本次抽獎人數已抽過本獎項的剩餘人數');
         }
       }
-      this.showSetwat = false;
+      this.setLotteryModalShow(false);
       this.$emit(
         'toggle',
         Object.assign({}, this.form, { remain: this.remain })
       );
-    },
-    startHandler() {
-      if (this.list.length === 0 || this.lottery.length === 0) {
-        const messageText =
-          this.list.length === 0 ? '請先匯入名單!' : '請先匯入獎項!';
-        this.$message({
-          message: messageText,
-          type: 'warning'
-        });
-        return;
-      }
-      this.$emit('toggle');
-      if (!this.running) {
-        this.showSetwat = true;
-      }
     },
     transformList() {
       const list = this.list.length > 0 ? this.list : [];
@@ -568,20 +556,22 @@ export default {
       });
     },
     transformPrizesList() {
-      let results = this.lottery.length > 0 ? this.lottery : [];
+      let lotteryList = [];
       if (this.listRadio === 'csv') {
         if (this.$refs.refPrizesFile.uploadFiles.length === 0) {
           this.$message.error('請匯入資料！');
           return;
         }
-        results = this.prizesData.map(({ name, number }) => {
+
+        lotteryList = this.prizesData.map(({ name, number }, index) => {
           return {
-            key: this.randomField(),
-            name: name,
+            key: index + 1,
+            name: `${index + 1} - ${name}`,
             number: Number(number) || 0
           };
         });
       } else {
+        // FIXME: 手動輸入獎項的邏輯要重寫
         const hasPrizesData = Object.keys(this.prizesFormData).every(
           keys => this.prizesFormData[keys]
         );
@@ -589,30 +579,30 @@ export default {
           this.$message.error('請輸入獎項名稱');
           return;
         }
-        results = [
-          {
-            key: this.randomField(),
-            name: this.prizesFormData.name,
-            number: Number(this.prizesFormData.number)
-          }
-        ];
+        lotteryList.push({
+          key: this.randomField(),
+          name: this.prizesFormData.name,
+          number: Number(this.prizesFormData.number)
+        });
       }
-
-      this.$store.commit('setNewLottery', results);
+      this.$store.commit('setNewLottery', lotteryList);
 
       // 獎項預設配比數設定
       if (this.lottery.length > 0) {
-        this.$store.state.config = {
-          name: this.config.name,
-          number: getNumberOfPeople(this.$store.state)
-        };
-        this.lottery.forEach(item => {
+        const peopleNum = getNumberOfPeople(this.$store.state);
+        this.config.number = peopleNum;
+        lotteryList.forEach(item => {
           if (item.key) {
-            this.$set(this.config, item.key, item.number);
+            this.config.prizes[item.key] = {
+              number: item.number,
+              name: item.name
+            };
           }
         });
+
         this.$store.commit('setConfig', this.config);
       }
+
       this.$message({
         message: '匯入獎項成功',
         type: 'success'
@@ -627,6 +617,9 @@ export default {
         this.closeImportDialog();
         this.$emit('resetConfig');
       });
+
+      // reload Page
+      location.reload();
     },
     randomField() {
       const str = 'abcdefghijklmnopqrstuvwxyz';
@@ -675,36 +668,21 @@ export default {
           ? 0
           : Math.abs(parseInt(val, 10));
       }
+    },
+    beforeRemove(file) {
+      return this.$confirm(`確定移除 ${file.name}？`);
     }
   }
 };
 </script>
 <style lang="scss" scoped>
-#tool {
-  position: relative;
-  width: 80px;
-  top: 50%;
-  // right: 20px;
-  transform: translateY(-50%);
-  text-align: center;
+.button-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  .el-button + .el-button {
-    margin-top: 20px;
-    margin-left: 0px;
-  }
-  button {
-    width: 100%;
+  .el-button {
+    margin: 0 0 12px;
   }
 }
-// .setwat-dialog {
-//   .colorred {
-//     color: red;
-//     font-weight: bold;
-//   }
-// }
 .option-config {
   ::v-deep .el-form-item__label {
     text-align: center;

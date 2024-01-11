@@ -9,17 +9,18 @@
   >
     <div class="dialog-title" slot="title">
       <div>
-        <span :style="{ fontSize: '18px' }">
+        <h3 :style="{ fontSize: '18px' }">
           抽獎結果
-        </span>
-        <span :style="{ fontSize: '14px', color: '#999', marginLeft: '10px' }">
-          (點擊號碼可以刪除)
-        </span>
+          <span
+            :style="{ fontSize: '14px', color: '#999', marginLeft: '10px' }"
+          >
+            (點擊號碼可以刪除)
+          </span>
+        </h3>
       </div>
       <div>
         <el-button
           type="primary"
-          class="blue-background-button"
           :disabled="!result || Object.keys(result).length === 0"
           @click="exportResultsData"
           >匯出</el-button
@@ -81,7 +82,7 @@ export default {
     lottery() {
       return this.$store.state.newLottery;
     },
-    personsList() {
+    peopleList() {
       return this.$store.state.list;
     },
     resultList() {
@@ -149,12 +150,12 @@ export default {
       const resultsData = Object.keys(this.result).map(key => {
         const winningPartner = this.result[key].map(
           id =>
-            `${id} ${this.personsList.find(data => data.key === id).name} ${
-              this.personsList.find(data => data.key === id).nameCH
+            `${id} ${this.peopleList.find(data => data.key === id).name} ${
+              this.peopleList.find(data => data.key === id).nameCH
             }`
         );
         return {
-          name: this.lottery.find(data => data.key === key).name,
+          name: this.lottery.find(data => data.key === Number(key)).name,
           winning_partner: winningPartner
         };
       });
@@ -170,13 +171,6 @@ export default {
   div {
     margin: auto 0;
   }
-}
-.blue-background-button {
-  background: #1890ff;
-  border: 1px solid #1890ff;
-  border-radius: 2px;
-  box-sizing: border-box;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.043);
 }
 .no-result-data-text {
   display: flex;
@@ -202,10 +196,11 @@ export default {
   }
   .listrow {
     display: flex;
-    align-items: center;
-    line-height: 30px;
+    align-items: start;
+
     .name {
-      width: 80px;
+      padding-top: 0.5rem;
+      width: 150px;
       font-weight: bold;
     }
     .value {
@@ -229,11 +224,14 @@ export default {
           content: '删除';
           width: 100%;
           height: 100%;
-          background-color: #ccc;
+          background-color: rgb(255, 229, 229);
           position: absolute;
           left: 0;
           top: 0;
-          color: red;
+          color: rgb(218, 70, 70);
+          border: 0;
+          font-size: 1rem;
+          letter-spacing: 0.2rem;
         }
       }
     }

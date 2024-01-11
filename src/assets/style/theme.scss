@@ -1,0 +1,50 @@
+$main-color: #866d59;
+$main-color-dark: #473526;
+$secondary-color: #00266f;
+
+.text-white {
+  color: white !important;
+}
+
+.text-main {
+  color: $main-color !important;
+}
+
+@for $i from 1 through 9 {
+  .text-main {
+    &-#{$i * 100} {
+      color: lighten($main-color, $i *10%) !important;
+    }
+  }
+
+  .bg-main {
+    &-#{$i * 100} {
+      background: lighten($main-color, $i *10%) !important;
+    }
+  }
+}
+
+.bg-main {
+  background: $main-color !important;
+}
+
+.bg-white {
+  background: white !important;
+}
+
+.bg-secondary {
+  background: $secondary-color !important;
+}
+
+.btn-main {
+  background: $main-color !important;
+  color: white !important;
+  border: $main-color !important;
+  &:hover {
+    background: lighten($main-color, 20%) !important;
+  }
+}
+
+.border-white {
+  border: white 1px solid;
+}

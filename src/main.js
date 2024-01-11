@@ -4,11 +4,12 @@ import router from './router';
 import store from './store';
 import Element from 'element-ui';
 import '@/assets/style/index.scss';
+import locale from 'element-ui/lib/locale/lang/zh-TW';
 import 'element-ui/lib/theme-chalk/index.css';
 import '@/assets/lib/tagcanvas.js';
 Vue.config.productionTip = false;
 
-Vue.use(Element);
+Vue.use(Element, { locale });
 
 new Vue({
   router,
