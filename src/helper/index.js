@@ -41,10 +41,12 @@ export const newLotteryField = 'newLottery'; // 新增獎項
 export const listField = 'list'; // 名單
 export function conversionCategoryName(key) {
   let name = '';
+  // Error
   const newLottery = getData(newLotteryField) || [];
-  const findres = newLottery.find(item => item.key === key);
-  if (findres) {
-    name = findres.name;
+
+  const result = newLottery.find(item => item.key === Number(key));
+  if (result) {
+    name = result.name;
   }
   return name;
 }

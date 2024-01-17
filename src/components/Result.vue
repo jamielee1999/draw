@@ -9,17 +9,18 @@
   >
     <div class="dialog-title" slot="title">
       <div>
-        <span :style="{ fontSize: '18px' }">
+        <h3 :style="{ fontSize: '18px' }">
           抽獎結果
-        </span>
-        <span :style="{ fontSize: '14px', color: '#999', marginLeft: '10px' }">
-          (點擊號碼可以刪除)
-        </span>
+          <span
+            :style="{ fontSize: '14px', color: '#999', marginLeft: '10px' }"
+          >
+            (點擊號碼可以刪除)
+          </span>
+        </h3>
       </div>
       <div>
         <el-button
           type="primary"
-          class="blue-background-button"
           :disabled="!result || Object.keys(result).length === 0"
           @click="exportResultsData"
           >匯出</el-button
@@ -31,27 +32,28 @@
     <div
       v-for="(item, index) in resultList"
       :key="index"
-      class="listrow"
       @click="
         event => {
           deleteRes(event, item);
         }
       "
     >
-      <span class="name">
-        {{ item.name }}
-      </span>
-      <div class="value">
-        <div
-          class="card"
-          v-for="(data, j) in item.value"
-          :key="j"
-          :data-res="data"
-        >
-          {{ `${data} ${mapList(data)}` }}
+      <div class="listrow">
+        <p class="name pe-6">
+          {{ item.name }}
+        </p>
+        <div class="value">
+          <div
+            class="card"
+            v-for="(data, j) in item.value"
+            :key="j"
+            :data-res="data"
+          >
+            {{ `${data} ${mapList(data)}` }}
+          </div>
         </div>
-        <el-divider></el-divider>
       </div>
+      <el-divider></el-divider>
     </div>
   </el-dialog>
 </template>
@@ -81,7 +83,7 @@ export default {
     lottery() {
       return this.$store.state.newLottery;
     },
-    personsList() {
+    peopleList() {
       return this.$store.state.list;
     },
     resultList() {
@@ -146,15 +148,16 @@ export default {
         });
     },
     exportResultsData() {
-      const resultsData = Object.keys(this.result).map(key => {
+      const resultsData = Object.keys(this.result).map((key, index) => {
         const winningPartner = this.result[key].map(
           id =>
-            `${id} ${this.personsList.find(data => data.key === id).name} ${
-              this.personsList.find(data => data.key === id).nameCH
+            `${this.peopleList.find(data => data.key === id).name} ${
+              this.peopleList.find(data => data.key === id).nameCH
             }`
         );
         return {
-          name: this.lottery.find(data => data.key === key).name,
+          key: index + 1,
+          name: this.lottery.find(data => data.key === Number(key)).name.split('. ')[1],
           winning_partner: winningPartner
         };
       });
@@ -170,13 +173,6 @@ export default {
   div {
     margin: auto 0;
   }
-}
-.blue-background-button {
-  background: #1890ff;
-  border: 1px solid #1890ff;
-  border-radius: 2px;
-  box-sizing: border-box;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.043);
 }
 .no-result-data-text {
   display: flex;
@@ -202,14 +198,15 @@ export default {
   }
   .listrow {
     display: flex;
-    align-items: center;
-    line-height: 30px;
+
     .name {
-      width: 80px;
+      padding-top: 0.5rem;
+      width: 150px;
       font-weight: bold;
     }
     .value {
       flex: 1;
+      min-height: 70px;
     }
     .card {
       display: inline-block;
@@ -229,11 +226,14 @@ export default {
           content: '删除';
           width: 100%;
           height: 100%;
-          background-color: #ccc;
+          background-color: rgb(255, 229, 229);
           position: absolute;
           left: 0;
           top: 0;
-          color: red;
+          color: rgb(218, 70, 70);
+          border: 0;
+          font-size: 1rem;
+          letter-spacing: 0.2rem;
         }
       }
     }

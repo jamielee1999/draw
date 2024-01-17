@@ -1,154 +1,134 @@
 $spacing: 4px;
+$size: 2px;
+
+// 定義 mixin 用於生成 margin/padding 樣式
+@mixin generate-space($property, $multiplier) {
+  @for $i from 0 through 15 {
+    &-#{$i} {
+      #{$property}: $spacing * $multiplier * $i !important;
+    }
+  }
+  &-auto {
+    #{$property}: auto !important;
+  }
+}
+
 // margin
 .mx,
 .ms {
-  &-1 {
-    margin-left: $spacing * 0.5 !important;
-  }
-
-  &-2 {
-    margin-left: $spacing !important;
-  }
-
-  &-3 {
-    margin-left: $spacing * 1.5 !important;
-  }
-
-  &-4 {
-    margin-left: $spacing * 2 !important;
-  }
-
-  &-5 {
-    margin-left: $spacing * 3 !important;
-  }
-
-  &-6 {
-    margin-left: $spacing * 4 !important;
-  }
-
-  &-7 {
-    margin-left: $spacing * 5 !important;
-  }
-
-  &-8 {
-    margin-left: $spacing * 6 !important;
-  }
+  @include generate-space(margin-left, 1);
 }
 
 .mx,
 .me {
-  &-1 {
-    margin-right: $spacing * 0.5 !important;
-  }
-
-  &-2 {
-    margin-right: $spacing !important;
-  }
-
-  &-3 {
-    margin-right: $spacing * 1.5 !important;
-  }
-
-  &-4 {
-    margin-right: $spacing * 2 !important;
-  }
-
-  &-5 {
-    margin-right: $spacing * 3 !important;
-  }
-
-  &-6 {
-    margin-right: $spacing * 4 !important;
-  }
-
-  &-7 {
-    margin-right: $spacing * 5 !important;
-  }
-
-  &-8 {
-    margin-right: $spacing * 6 !important;
-  }
+  @include generate-space(margin-right, 1);
 }
 
 .my,
 .mt {
-  &-1 {
-    margin-top: $spacing * 0.5 !important;
-  }
-
-  &-2 {
-    margin-top: $spacing !important;
-  }
-
-  &-3 {
-    margin-top: $spacing * 1.5 !important;
-  }
-
-  &-4 {
-    margin-top: $spacing * 2 !important;
-  }
-
-  &-5 {
-    margin-top: $spacing * 3 !important;
-  }
-
-  &-6 {
-    margin-top: $spacing * 4 !important;
-  }
-
-  &-7 {
-    margin-top: $spacing * 5 !important;
-  }
-
-  &-8 {
-    margin-top: $spacing * 6 !important;
-  }
+  @include generate-space(margin-top, 1);
 }
 
 .my,
 .mb {
-  &-0 {
-    margin-bottom: $spacing * 0 !important;
-  }
-  &-1 {
-    margin-bottom: $spacing * 0.5 !important;
-  }
+  @include generate-space(margin-bottom, 1);
+}
 
-  &-2 {
-    margin-bottom: $spacing !important;
-  }
+.px,
+.ps {
+  @include generate-space(padding-left, 1);
+}
 
-  &-3 {
-    margin-bottom: $spacing * 1.5 !important;
-  }
+.px,
+.pe {
+  @include generate-space(padding-right, 1);
+}
 
-  &-4 {
-    margin-bottom: $spacing * 2 !important;
-  }
+.py,
+.pt {
+  @include generate-space(padding-top, 1);
+}
 
-  &-5 {
-    margin-bottom: $spacing * 3 !important;
-  }
-
-  &-6 {
-    margin-bottom: $spacing * 4 !important;
-  }
-
-  &-7 {
-    margin-bottom: $spacing * 5 !important;
-  }
-
-  &-8 {
-    margin-bottom: $spacing * 6 !important;
-  }
+.py,
+.pb {
+  @include generate-space(padding-bottom, 1);
 }
 
 .flex {
-  display: flex;
+  display: flex !important;
+
+  &-col {
+    flex-direction: column !important;
+  }
 }
 
 .justify-content {
   &-end {
-    justify-content: flex-end;
+    justify-content: flex-end !important;
   }
+
+  &-center {
+    justify-content: center !important;
+  }
+  &-start {
+    justify-content: flex-start !important;
+  }
+}
+
+.align {
+  &-center {
+    align-items: center !important;
+  }
+}
+
+// font-size
+@for $i from 4 through 30 {
+  .fs {
+    &-#{$i} {
+      font-size: $size * $i !important;
+    }
+  }
+}
+
+// font-weight
+@for $i from 2 through 9 {
+  .fw {
+    &-#{$i * 100} {
+      font-weight: $i * 100 !important;
+    }
+  }
+}
+
+@for $i from 1 through 10 {
+  .w {
+    &-#{$i * 10} {
+      width: $i * 10% !important;
+    }
+  }
+  .h {
+    &-#{$i * 10} {
+      height: $i * 10% !important;
+    }
+  }
+}
+
+// position
+.relative {
+  position: relative !important;
+}
+
+.fixed {
+  position: fixed !important;
+}
+
+.absolute {
+  position: absolute !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.border-0 {
+  border: 0 !important;
 }

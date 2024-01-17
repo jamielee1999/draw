@@ -11,23 +11,27 @@ import {
 } from '@/helper/index';
 
 Vue.use(Vuex);
-const lotteryName = '抽獎程式';
+const lotteryName = '尾牙抽獎';
 export default new Vuex.Store({
   state: {
     config: {
       name: lotteryName,
-      number: getNumberOfPeople()
+      number: getNumberOfPeople(),
+      prizes: {}
     },
     result: {},
     newLottery: [],
     list: [],
-    photos: []
+    photos: [],
+    curSectionPrizes: {},
+    showLotteryModal: false
   },
   mutations: {
     clearConfig(state) {
       state.config = {
         name: lotteryName,
-        number: getNumberOfPeople(state)
+        number: getNumberOfPeople(state),
+        prizes: {}
       };
       state.newLottery = [];
       state.result = {};
@@ -44,7 +48,8 @@ export default new Vuex.Store({
     setClearStore(state) {
       state.config = {
         name: lotteryName,
-        number: getNumberOfPeople()
+        number: getNumberOfPeople(),
+        prizes: {}
       };
       state.result = {};
       state.newLottery = [];
@@ -60,7 +65,7 @@ export default new Vuex.Store({
 
       setData(resultField, state.result);
     },
-    setNewLottery(state, newLottery) {
+    setNewLottery(state, newLottery = []) {
       if (Array.isArray(newLottery)) {
         const filterNewLottery = newLottery.filter(
           data => !state.newLottery.some(lottery => lottery.name === data.name)
@@ -102,6 +107,12 @@ export default new Vuex.Store({
     },
     setPhotos(state, photos) {
       state.photos = photos;
+    },
+    setCurSectionPrizes(state, prizes) {
+      state.curSectionPrizes = prizes;
+    },
+    setLotteryModalShow(state, isShow) {
+      state.showLotteryModal = isShow;
     }
   },
   actions: {},
