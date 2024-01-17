@@ -56,20 +56,21 @@ export default {
   -moz-transition: all 0.3s;
   transition: all 0.3s;
 
-  background: $main-color;
+  background: $danger-color;
   color: white;
-  box-shadow: inset 0 -3px 6px $main-color-dark, 0 4px $main-color-dark;
+  box-shadow: inset 0 -3px 6px $danger-color-dark, 0 4px $danger-color-dark;
   &:hover {
-    background-color: $main-color !important;
+    background-color: $danger-color !important;
     color: white !important;
-    box-shadow: inset 0 -3px 6px $main-color-dark, 0 0 8px $main-color-dark;
+    box-shadow: inset 0 -3px 6px $danger-color-dark, 0 0 8px $danger-color-dark;
     top: -4px;
   }
   &:active,
   &:focus {
     color: white !important;
-    background: darken($main-color, 5%) !important;
-    box-shadow: inset 0 3px 15px 1px $main-color-dark, 0 0 5px $main-color-dark;
+    background: darken($danger-color, 5%) !important;
+    box-shadow: inset 0 3px 15px 1px $danger-color-dark,
+      0 0 5px $danger-color-dark;
     top: -6px;
   }
 

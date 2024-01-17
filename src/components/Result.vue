@@ -32,27 +32,28 @@
     <div
       v-for="(item, index) in resultList"
       :key="index"
-      class="listrow"
       @click="
         event => {
           deleteRes(event, item);
         }
       "
     >
-      <span class="name">
-        {{ item.name }}
-      </span>
-      <div class="value">
-        <div
-          class="card"
-          v-for="(data, j) in item.value"
-          :key="j"
-          :data-res="data"
-        >
-          {{ `${data} ${mapList(data)}` }}
+      <div class="listrow">
+        <p class="name pe-6">
+          {{ item.name }}
+        </p>
+        <div class="value">
+          <div
+            class="card"
+            v-for="(data, j) in item.value"
+            :key="j"
+            :data-res="data"
+          >
+            {{ `${data} ${mapList(data)}` }}
+          </div>
         </div>
-        <el-divider></el-divider>
       </div>
+      <el-divider></el-divider>
     </div>
   </el-dialog>
 </template>
@@ -147,15 +148,16 @@ export default {
         });
     },
     exportResultsData() {
-      const resultsData = Object.keys(this.result).map(key => {
+      const resultsData = Object.keys(this.result).map((key, index) => {
         const winningPartner = this.result[key].map(
           id =>
-            `${id} ${this.peopleList.find(data => data.key === id).name} ${
+            `${this.peopleList.find(data => data.key === id).name} ${
               this.peopleList.find(data => data.key === id).nameCH
             }`
         );
         return {
-          name: this.lottery.find(data => data.key === Number(key)).name,
+          key: index + 1,
+          name: this.lottery.find(data => data.key === Number(key)).name.split('. ')[1],
           winning_partner: winningPartner
         };
       });
@@ -196,7 +198,6 @@ export default {
   }
   .listrow {
     display: flex;
-    align-items: start;
 
     .name {
       padding-top: 0.5rem;
@@ -205,6 +206,7 @@ export default {
     }
     .value {
       flex: 1;
+      min-height: 70px;
     }
     .card {
       display: inline-block;

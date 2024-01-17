@@ -70,6 +70,9 @@ $size: 2px;
   &-center {
     justify-content: center !important;
   }
+  &-start {
+    justify-content: flex-start !important;
+  }
 }
 
 .align {

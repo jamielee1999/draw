@@ -10,7 +10,11 @@
         <Publicity v-show="!running" />
       </div>
     </header>
-    <div id="main" :class="{ mask: showRes }"></div>
+    <div
+      id="main"
+      :class="{ mask: showRes }"
+      class="flex justify-content-center align-items-center"
+    ></div>
     <div id="tags">
       <ul v-for="item in datas" :key="item.key">
         <li>
@@ -56,10 +60,10 @@
       </el-button>
     </div>
     <div class="start-btn" v-show="!showRes && !showMenu">
-      <StartButton @toggle="toggle" :running="running" />
+      <StartButton :running="running" @toggle="toggle" />
     </div>
     <transition name="bounce">
-      <div class="resbox" v-show="showRes">
+      <div class="resbox" v-show="showRes" @click="closeRes">
         <div class="text-white">
           <h3 class="fs-18 fw-500 mb-3">抽獎結果：</h3>
           <h4 class="fs-24 fw-700 mb-8" @click="showRes = false">
@@ -452,10 +456,10 @@ export default {
     position: absolute;
     background-image: linear-gradient(
         to bottom,
-        rgba(230, 230, 230, 0),
-        rgba(0, 38, 111, 0.35)
+        rgba(7, 7, 7, 0.7),
+        rgba(22, 22, 22, 0.7)
       ),
-      url(./assets/onead_2023.jpg);
+      url(./assets/1.jpg);
     background-size: 100% 100%;
     background-position: center center;
     background-repeat: no-repeat;
@@ -587,9 +591,9 @@ export default {
 
 .start-btn {
   position: fixed;
-  top: 55%;
+  top: 65%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .full {

@@ -60,26 +60,9 @@
               @input="UpdateNumberOfAwards($event, lottery)"
             ></el-input>
           </el-form-item>
-          <!-- 分段篩選獎品 -->
-          <el-form-item label="抽獎區段" class="mb-5" v-show="false">
-            <el-select
-              v-model="form.curLotteryPart"
-              placeholder="請選擇抽獎區段"
-              clearable
-              size="small"
-              class="w-100"
-            >
-              <el-option
-                v-for="item in lotteryParts"
-                :key="item.title"
-                :label="item.title"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </el-form-item>
         </el-form>
       </div>
-      <div class="footer">
+      <div class="flex justify-content-end">
         <el-button size="mini" type="primary" @click="onSubmit" plain
           >儲存設定</el-button
         >
@@ -263,7 +246,7 @@ export default {
       this.showLotteryList = !this.showLotteryList;
     },
     getLotteryStatusName(status) {
-      return status.lotteryStatus ? '已中獎' : '';
+      return status.lotteryStatus ? '已中獎' : '未中獎';
     },
     tableRowClassName({ row }) {
       if (row.lotteryStatus) {
@@ -286,10 +269,6 @@ export default {
       overflow-y: auto;
       padding: 0 10px 40px;
     }
-  }
-  .footer {
-    display: flex;
-    justify-content: end;
   }
 }
 .dialog-showAddLottery {
