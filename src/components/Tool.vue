@@ -20,10 +20,12 @@
     <el-dialog
       :append-to-body="true"
       title="抽獎設定"
-      :visible.sync="showLotteryModal"
+      :visible="showLotteryModal"
       class="default-dialog-config setwat-dialog"
       width="400px"
       :show-close="false"
+      @open="toggleLotteryDialog(true)"
+      @close="toggleLotteryDialog(false)"
     >
       <el-form
         ref="form"
@@ -32,11 +34,24 @@
         size="mini"
         class="option-config"
       >
+        <el-form-item label="抽獎人">
+          <el-select v-model="curPresenter" placeholder="請選擇抽獎人" clearable @change="clearCurPrize">
+            <el-option
+              v-for="presenter in presenterList"
+              :label="presenter.name"
+              :key="presenter.key"
+              :value="presenter.key"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="抽取獎項">
           <el-select
             v-model="form.category"
             placeholder="請選擇抽取的獎項"
             no-data-text="尚未配置獎項數量"
+            :disabled="!curPresenter"
+            clearable
           >
             <el-option
               :label="item.label"
@@ -44,7 +59,7 @@
               v-for="item in categories"
               :key="item.value"
             >
-              <span style="float: left">{{ item.label }}</span>
+              <span style="float: left; padding-right: 2rem;">{{ item.label }}</span>
               <span style="float: right; color: #8492a6; font-size: 12px">{{
                 `${remainingAmount(item.value)}/${item.number}`
               }}</span>
@@ -223,7 +238,7 @@
       :visible.sync="showImportphoto"
       @getPhoto="$emit('getPhoto')"
     ></Importphoto> -->
-    <!-- ====== 設定 ====== -->
+    <!-- ====== 重置設定 ====== -->
     <el-dialog
       :visible.sync="showRemoveoptions"
       width="400px"
@@ -312,17 +327,40 @@ export default {
       for (const key in prizes) {
         if (prizes.hasOwnProperty(key)) {
           const prizeNum = prizes[key].number;
+          const presenterKey = prizes[key].presenterKey
           const name = conversionCategoryName(key);
           if (prizeNum > 0 && name) {
             options.push({
               label: name,
               value: key,
-              number: prizeNum
+              number: prizeNum,
+              presenterKey
             });
           }
         }
       }
-      return options;
+
+      return options.filter(item => item.presenterKey === this.curPresenter);
+    },
+    presenterList() {
+      const seen = new Map();
+      const uniqueObjects = [];
+
+      Object.values(this.config.prizes).forEach(item => {
+        const key = item.presenterKey;
+        const name = item.presenterName;
+        const obj = { key, name };
+
+        // 使用 key 的字符串形式作为 Map 的键
+        const keyString = JSON.stringify(obj);
+
+        if (!seen.has(keyString)) {
+          seen.set(keyString, true);
+          uniqueObjects.push(obj);
+        }
+      });
+
+      return uniqueObjects;
     }
   },
   // components: { Importphoto },
@@ -354,7 +392,7 @@ export default {
       removeInfo: { type: 0 },
       form: {
         category: '',
-        mode: 1,
+        mode: 0,
         qty: 1,
         allin: false
       },
@@ -363,7 +401,8 @@ export default {
       defaultParticipantsData,
       defaultPrizesData,
       participantsFormData: { ...defaultParticipantsData },
-      prizesFormData: { ...defaultPrizesData }
+      prizesFormData: { ...defaultPrizesData },
+      curPresenter: ''
     };
   },
   watch: {
@@ -398,7 +437,9 @@ export default {
             csvData.push({
               key: data[0],
               name: data[1],
-              number: data[2]
+              number: data[2],
+              presenterName: data[3],
+              presenterKey: data[4]
             });
           });
         }
@@ -563,13 +604,17 @@ export default {
           return;
         }
 
-        lotteryList = this.prizesData.map(({ name, number }, index) => {
-          return {
-            key: index + 1,
-            name: `${index + 1} - ${name}`,
-            number: Number(number) || 0
-          };
-        });
+        lotteryList = this.prizesData.map(
+          ({ name, number, presenterKey, presenterName }, index) => {
+            return {
+              key: index + 1,
+              name: `${index + 1}. ${name}`,
+              number: Number(number) || 0,
+              presenterKey,
+              presenterName
+            };
+          }
+        );
       } else {
         // FIXME: 手動輸入獎項的邏輯要重寫
         const hasPrizesData = Object.keys(this.prizesFormData).every(
@@ -595,7 +640,9 @@ export default {
           if (item.key) {
             this.config.prizes[item.key] = {
               number: item.number,
-              name: item.name
+              name: item.name,
+              presenterKey: item.presenterKey,
+              presenterName: item.presenterName
             };
           }
         });
@@ -671,6 +718,12 @@ export default {
     },
     beforeRemove(file) {
       return this.$confirm(`確定移除 ${file.name}？`);
+    },
+    toggleLotteryDialog(isOpen) {
+      this.setLotteryModalShow(isOpen);
+    },
+    clearCurPrize() {
+      this.form.category = null
     }
   }
 };
@@ -685,7 +738,7 @@ export default {
 }
 .option-config {
   ::v-deep .el-form-item__label {
-    text-align: center;
+    text-align: left;
   }
   .el-form-item__content {
     div {
