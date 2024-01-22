@@ -51,7 +51,7 @@
         </div>
       </el-dialog>
     </div>
-    <div class="side-left" v-show="false">
+    <div class="side-left">
       <el-button class="audio" type="text" @click="playAudio(!audioPlaying)">
         <i
           class="iconfont"
@@ -487,13 +487,14 @@ export default {
   .audio {
     position: absolute;
     top: 20px;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
+    width: 82px;
+    height: 82px;
+    line-height: 82px;
     border: 1px solid white;
     border-radius: 50%;
     padding: 0;
     z-index: 1;
+    opacity: 0.25;
     .iconfont {
       position: relative;
       color: white;
@@ -568,13 +569,10 @@ export default {
 }
 .side-left {
   position: fixed;
-  width: 100px;
-  height: calc(100% - 50px);
-  top: 0;
-  left: 0px;
-  margin-top: 50px;
-  display: flex;
-  justify-content: center;
+  width: 82px;
+  height: 82px;
+  bottom: 32px;
+  left: 32px;
 }
 .side-right {
   position: fixed;
